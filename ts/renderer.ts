@@ -58,7 +58,7 @@ export class Renderer {
     );
   }
 
-  test_renderDisplay(bool: boolean) {
+  run_rendererDemo(bool: boolean) {
     let testArray = Array.from({ length: 64 }, (_, i) => {
       if (bool) {
         return i % 2 === 0 ? Array(32).fill(1) : Array(32).fill(0);

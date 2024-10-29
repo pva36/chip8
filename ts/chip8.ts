@@ -1,3 +1,16 @@
+import { Cpu } from "./cpu.js";
+
+interface Renderer {
+  scale: number;
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
+  cols: number;
+  rows: number;
+  renderDisplay: Function;
+  clearScreen: Function;
+  run_rendererDemo: Function;
+}
+
 export class Chip8 {
   /**
    * Static Methods ----------------------------------------------------------
@@ -51,10 +64,19 @@ export class Chip8 {
   // Display
   private display: number[][];
 
+  private displayObject: Renderer;
+
+  private cpu: Cpu;
+
   /**
-   * Constructors ------------------------------------------------------------
+   * Constructor ------------------------------------------------------------
    */
-  constructor() {
+  constructor(displayObject: Renderer) {
+    this.cpu = new Cpu(this);
+
+    // display object of class Renderer
+    this.displayObject = displayObject;
+
     // Memory (8-bit)
     this.memory = new Uint8Array(0x1000);
 
@@ -142,6 +164,7 @@ export class Chip8 {
     return this._sp[0];
   }
   set sp(value: number) {
+    // TODO: should a negative value in the stack pointer counter be allowed?
     if (value < 0) {
       throw Error("The STACK POINTER cannot hold a negative value!");
     } else if (value > 0xffff) {
@@ -193,7 +216,26 @@ export class Chip8 {
    */
   fetchBinary(arrayBin: Uint8Array) {
     console.log([].map.call(arrayBin, (x: number) => x.toString(16)));
+    let switcher = true;
+
+    // test connection with renderer
+    setInterval(() => {
+      this.displayObject.clearScreen();
+      this.displayObject.run_rendererDemo(switcher);
+      if (switcher) switcher = false;
+      else switcher = true;
+    }, 1000);
   }
+
+  sendInstructionToCpu(instruction: number) {
+    this.cpu.processInstruction(instruction);
+  }
+
+  clearDisplay(): void {
+    this.display = Array.from({ length: 64 }, () => Array(32).fill(0));
+    // console.log(this.display);
+  }
+
   // chip 8 helper functions
   // clear registers (reset)
   // get instruction (to pass it to the `cpu`)

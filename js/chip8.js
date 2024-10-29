@@ -1,3 +1,4 @@
+import { Cpu } from "./cpu.js";
 export class Chip8 {
     /**
      * Static Methods ----------------------------------------------------------
@@ -21,11 +22,14 @@ export class Chip8 {
         return true;
     }
     /**
-     * Constructors ------------------------------------------------------------
+     * Constructor ------------------------------------------------------------
      */
-    constructor() {
+    constructor(displayObject) {
         // Vx registers
         this._v = new Uint8Array(0x10);
+        this.cpu = new Cpu(this);
+        // display object of class Renderer
+        this.displayObject = displayObject;
         // Memory (8-bit)
         this.memory = new Uint8Array(0x1000);
         // Vx registers (8-bit)
@@ -103,6 +107,7 @@ export class Chip8 {
         return this._sp[0];
     }
     set sp(value) {
+        // TODO: should a negative value in the stack pointer counter be allowed?
         if (value < 0) {
             throw Error("The STACK POINTER cannot hold a negative value!");
         }
@@ -148,5 +153,22 @@ export class Chip8 {
      */
     fetchBinary(arrayBin) {
         console.log([].map.call(arrayBin, (x) => x.toString(16)));
+        let switcher = true;
+        // test connection with renderer
+        setInterval(() => {
+            this.displayObject.clearScreen();
+            this.displayObject.run_rendererDemo(switcher);
+            if (switcher)
+                switcher = false;
+            else
+                switcher = true;
+        }, 1000);
+    }
+    sendInstructionToCpu(instruction) {
+        this.cpu.processInstruction(instruction);
+    }
+    clearDisplay() {
+        this.display = Array.from({ length: 64 }, () => Array(32).fill(0));
+        // console.log(this.display);
     }
 }

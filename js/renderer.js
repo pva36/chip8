@@ -32,7 +32,7 @@ export class Renderer {
         // console.log(this);
         this.context.clearRect(0, 0, this.cols * this.scale, this.rows * this.scale);
     }
-    test_renderDisplay(bool) {
+    run_rendererDemo(bool) {
         let testArray = Array.from({ length: 64 }, (_, i) => {
             if (bool) {
                 return i % 2 === 0 ? Array(32).fill(1) : Array(32).fill(0);
