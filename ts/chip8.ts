@@ -52,7 +52,7 @@ export class Chip8 {
   private display: number[][];
 
   /**
-   * Constructor -------------------------------------------------------------
+   * Constructors ------------------------------------------------------------
    */
   constructor() {
     // Memory (8-bit)
@@ -188,6 +188,12 @@ export class Chip8 {
     }
   }
 
+  /**
+   * Interaction with other elements of the system
+   */
+  fetchBinary(arrayBin: Uint8Array) {
+    console.log([].map.call(arrayBin, (x: number) => x.toString(16)));
+  }
   // chip 8 helper functions
   // clear registers (reset)
   // get instruction (to pass it to the `cpu`)
