@@ -45,8 +45,9 @@ export class Chip8 {
         this._sp = new Uint8Array(1);
         // Stack (array of 16 16-bit values)
         this._stack = new Uint16Array(0x10);
-        // Display (64x32 pixels) rows: 64, cols: 32.
-        this.display = Array.from({ length: 64 }, () => Array(32).fill(0));
+        // Display (64x32 pixels) rows: 32, cols: 64.
+        this.display = Array.from({ length: 32 }, () => Array(64).fill(0));
+        this.setFonts();
     }
     /**
      * Getters and Setters -----------------------------------------------------
@@ -68,6 +69,7 @@ export class Chip8 {
         else if (value < 0 || value > 0xff) {
             throw Error(`V[${index} cannot hold values greater than 255 (0xFF)]`);
         }
+        this._v[index] = value;
     }
     // Getter and setter for I register.
     // TODO: clean check logic
@@ -152,23 +154,129 @@ export class Chip8 {
      * Interaction with other elements of the system
      */
     fetchBinary(arrayBin) {
-        console.log([].map.call(arrayBin, (x) => x.toString(16)));
-        let switcher = true;
-        // test connection with renderer
+        // console.log([].map.call(arrayBin, (x: number) => x.toString(16)));
+        // prepare chip8 for execution:
+        // clean memory and registers
+        //
+        // set fonts
+        this.setFonts();
+        // load program into memory, starting from location 0x200;
+        let memIndex = 0x200;
+        for (const byte of arrayBin) {
+            this.memory[memIndex++] = byte;
+        }
+        console.log("program loaded in memory: ");
+        // console.log(this.memory);
+        this.cpu.executeProgram();
         setInterval(() => {
             this.displayObject.clearScreen();
-            this.displayObject.run_rendererDemo(switcher);
-            if (switcher)
-                switcher = false;
-            else
-                switcher = true;
-        }, 1000);
+            this.displayObject.renderDisplay(this.display);
+            console.log("Display's current state:");
+            console.dir(this.display);
+        });
+        // test connection with renderer
+        // let switcher = true;
+        // setInterval(() => {
+        //   this.displayObject.clearScreen();
+        //   this.displayObject.run_rendererDemo(switcher);
+        //   if (switcher) switcher = false;
+        //   else switcher = true;
+        // }, 1000);
     }
     sendInstructionToCpu(instruction) {
         this.cpu.processInstruction(instruction);
+        console.dir(this.display);
+        console.dir(this.memory);
     }
     clearDisplay() {
-        this.display = Array.from({ length: 64 }, () => Array(32).fill(0));
+        this.display = Array.from({ length: 32 }, () => Array(64).fill(0));
         // console.log(this.display);
+    }
+    setFonts() {
+        const fontsArray = [
+            0xf0,
+            0x90,
+            0x90,
+            0x90,
+            0xf0, //0
+            0x20,
+            0x60,
+            0x20,
+            0x20,
+            0x70, // 1
+            0xf0,
+            0x10,
+            0xf0,
+            0x80,
+            0xf0, // 2
+            0xf0,
+            0x10,
+            0xf0,
+            0x10,
+            0xf0, // 3
+            0x90,
+            0x90,
+            0xf0,
+            0x10,
+            0x10, // 4
+            0xf0,
+            0x80,
+            0xf0,
+            0x10,
+            0xf0, // 5
+            0xf0,
+            0x80,
+            0xf0,
+            0x90,
+            0xf0, // 6
+            0xf0,
+            0x10,
+            0x20,
+            0x40,
+            0x40, // 7
+            0xf0,
+            0x90,
+            0xf0,
+            0x90,
+            0xf0, // 8
+            0xf0,
+            0x90,
+            0xf0,
+            0x10,
+            0xf0, // 9
+            0xf0,
+            0x90,
+            0xf0,
+            0x90,
+            0x90, // A
+            0xe0,
+            0x90,
+            0xe0,
+            0x90,
+            0xe0, // B
+            0xf0,
+            0x80,
+            0x80,
+            0x80,
+            0xf0, // C
+            0xe0,
+            0x90,
+            0x90,
+            0x90,
+            0xe0, // D
+            0xf0,
+            0x80,
+            0xf0,
+            0x80,
+            0xf0, // E
+            0xf0,
+            0x80,
+            0xf0,
+            0x80,
+            0x80, // F
+        ];
+        for (let i = 0x50, j = 0; i <= 0x9f; i++, j++) {
+            this.memory[i] = fontsArray[j];
+        }
     }
 }

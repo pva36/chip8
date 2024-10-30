@@ -17,6 +17,10 @@ const chip8 = new Chip8(renderer);
 const romInputButton = document.querySelector("button[id='runGame']");
 const submitInstructionForm = document.querySelector("form#runInstruction");
 // chip8.sendInstructionToCpu(0x0123);
+// chip8.sendInstructionToCpu(0x6120);
+// chip8.sendInstructionToCpu(0x6210);
+// chip8.sendInstructionToCpu(0xa050);
+// chip8.sendInstructionToCpu(0xd125);
 /**
  * Main
  */

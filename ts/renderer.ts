@@ -25,9 +25,9 @@ export class Renderer {
   }
 
   renderDisplay(twoDimArray: number[][]): void {
-    // the input should be an array of 64x32 (wxh), with 0s and 1s.
-    const colsNumber = twoDimArray.length; // cols
-    const rowsNumber = twoDimArray[0].length; // rows
+    // the input should be an array of (64x32 wxh), with 0s and 1s.
+    const rowsNumber = twoDimArray.length; // rows
+    const colsNumber = twoDimArray[0].length; // cols
 
     // scaling the canvas (drawing squares of area this.scale^2)
     for (
@@ -40,7 +40,7 @@ export class Renderer {
         xCanvas < rowsNumber * this.scale && x < rowsNumber;
         xCanvas += this.scale, x++ // x coordinate of the upper left vertex of square
       ) {
-        if (twoDimArray[y][x] === 1) {
+        if (twoDimArray[x][y] === 1) {
           // fill square according to coordinates and scale factor
           this.context.fillRect(yCanvas, xCanvas, this.scale, this.scale);
         }
@@ -59,11 +59,13 @@ export class Renderer {
   }
 
   run_rendererDemo(bool: boolean) {
-    let testArray = Array.from({ length: 64 }, (_, i) => {
+    const rows = 32;
+    const cols = 64;
+    let testArray = Array.from({ length: rows }, (_, i) => {
       if (bool) {
-        return i % 2 === 0 ? Array(32).fill(1) : Array(32).fill(0);
+        return i % 2 === 0 ? Array(cols).fill(1) : Array(cols).fill(0);
       } else {
-        return i % 2 === 0 ? Array(32).fill(0) : Array(32).fill(1);
+        return i % 2 === 0 ? Array(cols).fill(0) : Array(cols).fill(1);
       }
     });
     this.renderDisplay(testArray);
