@@ -15,35 +15,26 @@ const reader = new FileReader();
 const renderer = new Renderer(10, canvas, 64, 32);
 const chip8 = new Chip8(renderer);
 const romInputButton = document.querySelector("button[id='runGame']");
-// testing purposes!
+const submitInstructionForm = document.querySelector("form#runInstruction");
 // chip8.sendInstructionToCpu(0x0123);
-// test 00E0
-chip8.sendInstructionToCpu(0x00ee);
-// test 00EE
-chip8.sendInstructionToCpu(0x00e0);
-// test jp1nnn
-chip8.sendInstructionToCpu(0x1345);
-chip8.sendInstructionToCpu(0x1654);
-// chip8.sendInstructionToCpu(0x1123);
-// chip8.sendInstructionToCpu(0x2123);
-// chip8.sendInstructionToCpu(0x3123);
-// chip8.sendInstructionToCpu(0x4123);
-// chip8.sendInstructionToCpu(0x5123);
-// chip8.sendInstructionToCpu(0x6123);
-// chip8.sendInstructionToCpu(0x7123);
-// chip8.sendInstructionToCpu(0x8123);
-// chip8.sendInstructionToCpu(0x9123);
-// chip8.sendInstructionToCpu(0xa123);
-// chip8.sendInstructionToCpu(0xb123);
-// chip8.sendInstructionToCpu(0xc123);
-// chip8.sendInstructionToCpu(0xd123);
-// chip8.sendInstructionToCpu(0xe123);
-// chip8.sendInstructionToCpu(0xf123);
 /**
  * Main
  */
 function main() {
     romInputButton.addEventListener("click", romHandler);
+    // event listener for submit instruction
+    submitInstructionForm === null || submitInstructionForm === void 0 ? void 0 : submitInstructionForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const formInput = document.querySelector("input#chip8instruction");
+        const instruction = formInput.value;
+        const regex = /^0x[\da-fA-F]{4}/;
+        if (regex.test(instruction)) {
+            chip8.sendInstructionToCpu(parseInt(instruction));
+        }
+        else {
+            alert("Please enter a instruction in the format specified");
+        }
+    });
 }
 /**
  * Functions -----------------------------------------------------------------

@@ -24,7 +24,27 @@
       <button type="button" class="btn btn-secondary" id="runGame">
         Run Game
       </button>
+      <!-- Debugging -->
+      <div class="form-group">
+        <form id="runInstruction" class="px-4 py-4">
+          <input
+            type="text"
+            pattern="^0x[\da-fA-F]{4}$"
+            class="form-control mx-2 my-2"
+            id="chip8instruction"
+            placeholder="Enter chip8 instruction in hex format: 0xxxx"
+          />
+          <button
+            type="submit"
+            class="btn btn-secondary mx-2 my-2"
+            id="submitInstruction"
+          >
+            Run Instruction
+          </button>
+        </form>
+      </div>
     </div>
+
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
       integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"

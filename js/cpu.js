@@ -7,6 +7,7 @@ export class Cpu {
      */
     processInstruction(instruction) {
         // check that instruction is one byte (I want to be very careful);
+        console.log(`executing ${instruction.toString(16)}`);
         if (instruction < 0 && instruction > 0xffff) {
             throw Error("Chip8's CPU cannot handle instructions that aren't 16-bit (2 bytes) long");
         }

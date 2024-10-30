@@ -13,6 +13,8 @@ export class Cpu {
    */
 
   processInstruction(instruction: number): void {
+    console.log(`executing instruction '${instruction.toString(16)}'`);
+
     // check that instruction is one byte (I want to be very careful);
     if (instruction < 0 && instruction > 0xffff) {
       throw Error(
@@ -174,4 +176,68 @@ export class Cpu {
 
     // console.log("pc: ", this.chip8.pc);
   }
+
+  call2nnn(instruction: number) {}
+
+  se3xkk(instruction: number) {}
+
+  sne4xkk(instruction: number) {}
+
+  se5xy0(instruction: number) {}
+
+  ld6xkk(instruction: number) {}
+
+  ld8xy0(instruction: number) {}
+
+  or8xy1(instruction: number) {}
+
+  and8xy2(instruction: number) {}
+
+  xor8xy3(instruction: number) {}
+
+  add8xy4(instruction: number) {}
+
+  sub8xy5(instruction: number) {}
+
+  shr8xy6(instruction: number) {}
+
+  subn8xy7(instruction: number) {}
+
+  shl8xyE(instruction: number) {}
+
+  sne9xy0(instruction: number) {}
+
+  ldAnnn(instruction: number) {}
+
+  jpBnnn(instruciton: number) {}
+
+  rndCxkk(instruction: number) {}
+
+  drwDxyn(instruciton: number) {}
+
+  skpEx9E(instruction: number) {}
+
+  sknpExA1(instruction: number) {}
+
+  ldFx07(instruction: number) {}
+
+  ldFx0A(instruction: number) {}
+
+  ldFx15(instruction: number) {}
+
+  ldFx18(instruction: number) {}
+
+  addFx1E(instruction: number) {}
+
+  ldFx29(instruction: number) {}
+
+  ldFx33(instruction: number) {}
+
+  ldFx55(instruction: number) {}
+
+  ldFx65(instruction: number) {}
+
+  /**
+   * Super chip-48 Instructions
+   */
 }
