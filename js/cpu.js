@@ -6,8 +6,8 @@ export class Cpu {
      * Switches ----------------------------------------------------------------
      */
     processInstruction(instruction) {
+        console.log(`executing instruction '${instruction.toString(16)}'`);
         // check that instruction is one byte (I want to be very careful);
-        console.log(`executing ${instruction.toString(16)}`);
         if (instruction < 0 && instruction > 0xffff) {
             throw Error("Chip8's CPU cannot handle instructions that aren't 16-bit (2 bytes) long");
         }
@@ -36,7 +36,7 @@ export class Cpu {
                     console.log(`instruction starts with 0x5`);
                     break;
                 case 0x6000:
-                    console.log(`instruction starts with 0x6`);
+                    this.ld6xkk(instruction);
                     break;
                 case 0x7000:
                     console.log(`instruction starts with 0x7`);
@@ -140,4 +140,41 @@ export class Cpu {
         this.chip8.pc = address;
         // console.log("pc: ", this.chip8.pc);
     }
+    call2nnn(instruction) { }
+    se3xkk(instruction) { }
+    sne4xkk(instruction) { }
+    se5xy0(instruction) { }
+    ld6xkk(instruction) {
+        // Set Vx = kk.
+        // The intepreter puts the value kk into register Vx.
+        const value = instruction & 0x00ff;
+        const index = (instruction & 0x0f00) >> 8;
+        console.log("value =", value.toString(16), ", index =", index.toString(16));
+        this.chip8.setV(index, value);
+    }
+    ld8xy0(instruction) { }
+    or8xy1(instruction) { }
+    and8xy2(instruction) { }
+    xor8xy3(instruction) { }
+    add8xy4(instruction) { }
+    sub8xy5(instruction) { }
+    shr8xy6(instruction) { }
+    subn8xy7(instruction) { }
+    shl8xyE(instruction) { }
+    sne9xy0(instruction) { }
+    ldAnnn(instruction) { }
+    jpBnnn(instruciton) { }
+    rndCxkk(instruction) { }
+    drwDxyn(instruciton) { }
+    skpEx9E(instruction) { }
+    sknpExA1(instruction) { }
+    ldFx07(instruction) { }
+    ldFx0A(instruction) { }
+    ldFx15(instruction) { }
+    ldFx18(instruction) { }
+    addFx1E(instruction) { }
+    ldFx29(instruction) { }
+    ldFx33(instruction) { }
+    ldFx55(instruction) { }
+    ldFx65(instruction) { }
 }

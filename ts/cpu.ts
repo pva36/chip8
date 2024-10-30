@@ -52,7 +52,7 @@ export class Cpu {
           break;
 
         case 0x6000:
-          console.log(`instruction starts with 0x6`);
+          this.ld6xkk(instruction);
           break;
 
         case 0x7000:
@@ -185,7 +185,16 @@ export class Cpu {
 
   se5xy0(instruction: number) {}
 
-  ld6xkk(instruction: number) {}
+  ld6xkk(instruction: number) {
+    // Set Vx = kk.
+    // The intepreter puts the value kk into register Vx.
+
+    const value = instruction & 0x00ff;
+    const index = (instruction & 0x0f00) >> 8;
+    // console.log("value =", value.toString(16), ", index =", index.toString(16));
+
+    this.chip8.setV(index, value);
+  }
 
   ld8xy0(instruction: number) {}
 
