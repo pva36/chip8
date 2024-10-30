@@ -226,7 +226,13 @@ export class Cpu {
 
   sne9xy0(instruction: number) {}
 
-  ldAnnn(instruction: number) {}
+  ldAnnn(instruction: number) {
+    // Set I = nnn
+    // The value of register I is set to nnn
+
+    const address = instruction & 0x0fff;
+    this.chip8.i = address;
+  }
 
   jpBnnn(instruciton: number) {}
 
