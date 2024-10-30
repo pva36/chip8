@@ -68,7 +68,7 @@ export class Cpu {
           break;
 
         case 0xa000:
-          console.log(`instruction starts with 0xA`);
+          this.ldAnnn(instruction);
           break;
 
         case 0xb000:
@@ -80,7 +80,7 @@ export class Cpu {
           break;
 
         case 0xd000:
-          console.log(`instruction starts with 0xD`);
+          this.drwDxyn(instruction);
           break;
 
         case 0xe000:
@@ -238,7 +238,55 @@ export class Cpu {
 
   rndCxkk(instruction: number) {}
 
-  drwDxyn(instruciton: number) {}
+  drwDxyn(instruction: number) {
+    // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+
+    const ch8 = this.chip8;
+
+    const x = (instruction & 0x0f00) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+    const n = instruction & 0x000f;
+
+    // get Vx and Vy
+    const xCoord = ch8.getV(x);
+    let yCoord = ch8.getV(y);
+
+    // fill array with sprite's data
+    let spriteArray: number[] = [];
+    let memIndex = ch8.i;
+    for (; memIndex <= n; memIndex++) {
+      spriteArray.push(ch8.memory[memIndex]);
+    }
+
+    // VF
+    ch8.setV(0xf, 0);
+    let vFalreadyOn = false;
+
+    // draw into display
+    for (const byte of spriteArray) {
+      let currentX: number = xCoord;
+      let currentY: number = yCoord;
+      let bitOffset = 7;
+      let mask: number = 0b1000_0000;
+
+      for (let j = 8; j > 0; j--, bitOffset--, currentX++, mask >> 1) {
+        let displayPixelOldValue = ch8.display[currentY][currentX];
+        ch8.display[currentY][currentX] ^= (byte & mask) >> bitOffset;
+
+        // first check VF is already set to 1.
+        if (vFalreadyOn === false) {
+          if (
+            displayPixelOldValue === 1 &&
+            displayPixelOldValue !== ch8.display[currentY][currentX]
+          ) {
+            ch8.setV(0xf, 1);
+            vFalreadyOn = true;
+          }
+        }
+      }
+      yCoord++; // next iteration of loop operate over next row on display
+    }
+  }
 
   skpEx9E(instruction: number) {}
 
