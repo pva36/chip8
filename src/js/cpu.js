@@ -37,7 +37,7 @@ export class Cpu {
                     Cpu.call2nnn(instruction, ch8);
                     break;
                 case 0x3000:
-                    console.error(`0x3nnn not implemented`);
+                    Cpu.se3xkk(instruction, ch8);
                     break;
                 case 0x4000:
                     console.error(`0x4nnn not implemented`);
@@ -156,7 +156,17 @@ export class Cpu {
         ch8.setStack(++ch8.sp, ch8.pc);
         ch8.pc = adress;
     }
-    static se3xkk(instruction) { }
+    static se3xkk(instruction, ch8) {
+        // Skip next instruction if Vx = kk;
+        // The interpreter compares register Vx to kk, and if they are equal,
+        // increments the program counter by 2.
+        const kk = instruction & 0x00ff;
+        const x = (instruction & 0x0f00) >> 8;
+        const vx = ch8.getV(x);
+        if (vx === kk) {
+            ch8.pc += 2;
+        }
+    }
     static sne4xkk(instruction) { }
     static se5xy0(instruction) { }
     static ld6xkk(instruction, ch8) {

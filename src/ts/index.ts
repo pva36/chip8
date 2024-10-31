@@ -1,5 +1,5 @@
-import { Chip8 } from "./chip8.js";
-import { Renderer } from "./renderer.js";
+import { Chip8 } from "./chip8";
+import { Renderer } from "./renderer";
 
 const canvas: HTMLCanvasElement = document.querySelector("canvas#display")!;
 // const chip8 = new Chip8();

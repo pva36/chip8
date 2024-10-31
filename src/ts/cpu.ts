@@ -1,5 +1,5 @@
 // to avoid declaring an interface
-import { Chip8 } from "./chip8.js";
+import { Chip8 } from "./chip8";
 
 export class Cpu {
   /**
@@ -51,7 +51,7 @@ export class Cpu {
           break;
 
         case 0x3000:
-          console.error(`0x3nnn not implemented`);
+          Cpu.se3xkk(instruction, ch8);
           break;
 
         case 0x4000:
@@ -194,7 +194,19 @@ export class Cpu {
     ch8.pc = adress;
   }
 
-  static se3xkk(instruction: number) {}
+  static se3xkk(instruction: number, ch8: Chip8) {
+    // Skip next instruction if Vx = kk;
+    // The interpreter compares register Vx to kk, and if they are equal,
+    // increments the program counter by 2.
+
+    const kk = instruction & 0x00ff;
+    const x = (instruction & 0x0f00) >> 8;
+    const vx = ch8.getV(x);
+
+    if (vx === kk) {
+      ch8.pc += 2;
+    }
+  }
 
   static sne4xkk(instruction: number) {}
 

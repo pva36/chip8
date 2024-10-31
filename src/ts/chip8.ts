@@ -1,5 +1,5 @@
-import { Cpu } from "./cpu.js";
-import { Renderer } from "./renderer.js";
+import { Cpu } from "./cpu";
+import { Renderer } from "./renderer";
 
 export class Chip8 {
   /**
@@ -59,7 +59,7 @@ export class Chip8 {
   /**
    * Constructor ------------------------------------------------------------
    */
-  constructor(displayObject: Renderer) {
+  constructor(displayObject: any) {
     // display object of class Renderer
     this.displayObject = displayObject;
 
