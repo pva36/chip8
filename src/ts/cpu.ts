@@ -1,20 +1,12 @@
 // to avoid declaring an interface
 import { Chip8 } from "./chip8.js";
-import { Renderer } from "./renderer.js";
 
 export class Cpu {
-  chip8: Chip8;
-
-  constructor(chip8: Chip8) {
-    this.chip8 = chip8;
-  }
-
   /**
    * Run
    */
 
-  executeProgram(): void {
-    const ch8 = this.chip8;
+  static cpuRun(ch8: Chip8): void {
     ch8.pc = 0x200;
 
     setInterval(() => {
@@ -25,7 +17,7 @@ export class Cpu {
       instruction = instruction | lowByte;
 
       // console.log("pc", ch8.pc);
-      this.processInstruction(instruction);
+      Cpu.processInstruction(instruction, ch8);
       ch8.pc += 2; // increment after each operation
     });
   }
@@ -34,7 +26,7 @@ export class Cpu {
    * Switches ----------------------------------------------------------------
    */
 
-  processInstruction(instruction: number): void {
+  static processInstruction(instruction: number, ch8: Chip8): void {
     console.log(`executing instruction '${instruction.toString(16)}'`);
 
     // check that instruction is one byte (I want to be very careful);
@@ -49,16 +41,15 @@ export class Cpu {
 
       switch (firstNibble) {
         case 0x0000:
-          this.processInstruction0(instruction);
+          Cpu.processInstruction0(instruction, ch8);
           break;
 
         case 0x1000:
-          this.jp1nnn(instruction);
+          Cpu.jp1nnn(instruction, ch8);
           break;
 
         case 0x2000:
-          console.log(`instruction starts with 0x2`);
-          console.error(`0x2nnn not implemented`);
+          Cpu.call2nnn(instruction, ch8);
           break;
 
         case 0x3000:
@@ -77,11 +68,11 @@ export class Cpu {
           break;
 
         case 0x6000:
-          this.ld6xkk(instruction);
+          Cpu.ld6xkk(instruction, ch8);
           break;
 
         case 0x7000:
-          this.add7xkk(instruction);
+          Cpu.add7xkk(instruction, ch8);
           break;
 
         case 0x8000:
@@ -95,7 +86,7 @@ export class Cpu {
           break;
 
         case 0xa000:
-          this.ldAnnn(instruction);
+          Cpu.ldAnnn(instruction, ch8);
           break;
 
         case 0xb000:
@@ -109,7 +100,7 @@ export class Cpu {
           break;
 
         case 0xd000:
-          this.drwDxyn(instruction);
+          Cpu.drwDxyn(instruction, ch8);
           break;
 
         case 0xe000:
@@ -127,7 +118,7 @@ export class Cpu {
       }
     }
   }
-  processInstruction0(instruction: number): void {
+  static processInstruction0(instruction: number, ch8: Chip8): void {
     let secondNibble = instruction & 0x0f00;
     switch (secondNibble) {
       case 0x0100:
@@ -146,17 +137,17 @@ export class Cpu {
       case 0x0e00:
       case 0x0f00:
         /// console.log(`Instruction has the form 0x0nnn`);
-        this.sys0nnn(instruction);
+        Cpu.sys0nnn(instruction);
         break;
       case 0x0000:
         // console.log(`Instruction has the form 0x00nn`);
         let thirdFourthNibble = instruction & 0x00ff;
         switch (thirdFourthNibble) {
           case 0x00e0:
-            this.cls00E0(instruction);
+            Cpu.cls00E0(ch8);
             break;
           case 0x00ee:
-            this.ret00EE();
+            Cpu.ret00EE(ch8);
             break;
           default:
             throw Error("Error at switch 0x00Ex");
@@ -170,20 +161,19 @@ export class Cpu {
   /**
    * Instructions ------------------------------------------------------------
    */
-  sys0nnn(instruction: number): void {
+  static sys0nnn(instruction: number): void {
     // TODO: implement
-    console.log(`inside sys0nnn`);
+    console.log(`inside sys0nnn, instruction ${instruction.toString(16)}`);
   }
 
-  cls00E0(instruction: number): void {
+  static cls00E0(ch8: Chip8): void {
     // console.log(`inside cls00E0`);
-    this.chip8.clearDisplay();
+    ch8.clearDisplay();
   }
 
-  ret00EE(): void {
+  static ret00EE(ch8: Chip8): void {
     // console.log(`inside ret00EE`);
 
-    let ch8 = this.chip8;
     // set pc to address at the top of the stack
     ch8.pc = ch8.getStack(ch8.sp);
 
@@ -198,25 +188,32 @@ export class Cpu {
     }
   }
 
-  jp1nnn(instruction: number) {
+  static jp1nnn(instruction: number, ch8: Chip8) {
     // console.log(`js1nnn`);
     // the interpreter sets the program counter to `nnn`
     let address = instruction & 0x0fff;
 
-    this.chip8.pc = address;
+    ch8.pc = address;
 
     // console.log("pc: ", this.chip8.pc);
   }
 
-  call2nnn(instruction: number) {}
+  static call2nnn(instruction: number, ch8: Chip8) {
+    // Call subroutine at nnn
+    // The interpreter increments the stack pointer, then puts the current PC
+    // on the top of the stack. The PC is then set to nnn
+    const adress = instruction & 0x0fff;
+    ch8.setStack(++ch8.sp, ch8.pc);
+    ch8.pc = adress;
+  }
 
-  se3xkk(instruction: number) {}
+  static se3xkk(instruction: number) {}
 
-  sne4xkk(instruction: number) {}
+  static sne4xkk(instruction: number) {}
 
-  se5xy0(instruction: number) {}
+  static se5xy0(instruction: number) {}
 
-  ld6xkk(instruction: number) {
+  static ld6xkk(instruction: number, ch8: Chip8) {
     // Set Vx = kk.
     // The intepreter puts the value kk into register Vx.
 
@@ -224,58 +221,57 @@ export class Cpu {
     const index = (instruction & 0x0f00) >> 8;
     // console.log("value =", value.toString(16), ", index =", index.toString(16));
 
-    this.chip8.setV(index, value);
-    console.log(
-      `index = ${index}, value = ${value}, V${index.toString(16)} = ${this.chip8.getV(index)}`,
-    );
+    ch8.setV(index, value);
+    // console.log(
+    //   `index = ${index}, value = ${value}, V${index.toString(16)} = ${ch8.getV(index)}`,
+    // );
   }
 
-  add7xkk(instruction: number) {
+  static add7xkk(instruction: number, ch8: Chip8) {
     // Set Vx = Vx + kk
     // Adds the value kk to the value of register Vx, then stores the result in Vx.
     const value = instruction & 0x00ff;
     const index = (instruction & 0x0f00) >> 8;
 
-    const currentValue = this.chip8.getV(index);
-    this.chip8.setV(index, value + currentValue);
+    const currentValue = ch8.getV(index);
+    ch8.setV(index, value + currentValue);
   }
 
-  ld8xy0(instruction: number) {}
+  static ld8xy0(instruction: number) {}
 
-  or8xy1(instruction: number) {}
+  static or8xy1(instruction: number) {}
 
-  and8xy2(instruction: number) {}
+  static and8xy2(instruction: number) {}
 
-  xor8xy3(instruction: number) {}
+  static xor8xy3(instruction: number) {}
 
-  add8xy4(instruction: number) {}
+  static add8xy4(instruction: number) {}
 
-  sub8xy5(instruction: number) {}
+  static sub8xy5(instruction: number) {}
 
-  shr8xy6(instruction: number) {}
+  static shr8xy6(instruction: number) {}
 
-  subn8xy7(instruction: number) {}
+  static subn8xy7(instruction: number) {}
 
-  shl8xyE(instruction: number) {}
+  static shl8xyE(instruction: number) {}
 
-  sne9xy0(instruction: number) {}
+  static sne9xy0(instruction: number) {}
 
-  ldAnnn(instruction: number) {
+  static ldAnnn(instruction: number, ch8: Chip8) {
     // Set I = nnn
     // The value of register I is set to nnn
 
     const address = instruction & 0x0fff;
-    this.chip8.i = address;
+    ch8.i = address;
   }
 
-  jpBnnn(instruciton: number) {}
+  static jpBnnn(instruciton: number) {}
 
-  rndCxkk(instruction: number) {}
+  static rndCxkk(instruction: number) {}
 
-  drwDxyn(instruction: number) {
+  static drwDxyn(instruction: number, ch8: Chip8) {
     // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
 
-    const ch8 = this.chip8;
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
     const n = instruction & 0x000f;
@@ -336,27 +332,27 @@ export class Cpu {
     }
   }
 
-  skpEx9E(instruction: number) {}
+  static skpEx9E(instruction: number) {}
 
-  sknpExA1(instruction: number) {}
+  static sknpExA1(instruction: number) {}
 
-  ldFx07(instruction: number) {}
+  static ldFx07(instruction: number) {}
 
-  ldFx0A(instruction: number) {}
+  static ldFx0A(instruction: number) {}
 
-  ldFx15(instruction: number) {}
+  static ldFx15(instruction: number) {}
 
-  ldFx18(instruction: number) {}
+  static ldFx18(instruction: number) {}
 
-  addFx1E(instruction: number) {}
+  static addFx1E(instruction: number) {}
 
-  ldFx29(instruction: number) {}
+  static ldFx29(instruction: number) {}
 
-  ldFx33(instruction: number) {}
+  static ldFx33(instruction: number) {}
 
-  ldFx55(instruction: number) {}
+  static ldFx55(instruction: number) {}
 
-  ldFx65(instruction: number) {}
+  static ldFx65(instruction: number) {}
 
   /**
    * Super chip-48 Instructions

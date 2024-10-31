@@ -12,6 +12,13 @@ export class Renderer {
         this.canvas.width = cols * this.scale;
         this.canvas.height = rows * this.scale;
     }
+    /**
+     * input: twoDimArray: number[row][col]
+     */
+    diplayRun(twoDimArray) {
+        this.clearScreen();
+        this.renderDisplay(twoDimArray);
+    }
     renderDisplay(twoDimArray) {
         // the input should be an array of (64x32 wxh), with 0s and 1s.
         const rowsNumber = twoDimArray.length; // rows
@@ -29,7 +36,6 @@ export class Renderer {
         }
     }
     clearScreen() {
-        // console.log(this);
         this.context.clearRect(0, 0, this.cols * this.scale, this.rows * this.scale);
     }
     run_rendererDemo(bool) {

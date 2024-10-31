@@ -27,7 +27,6 @@ export class Chip8 {
     constructor(displayObject) {
         // Vx registers
         this._v = new Uint8Array(0x10);
-        this.cpu = new Cpu(this);
         // display object of class Renderer
         this.displayObject = displayObject;
         // Memory (8-bit)
@@ -167,24 +166,21 @@ export class Chip8 {
         }
         console.log("program loaded in memory: ");
         // console.log(this.memory);
-        this.cpu.executeProgram();
+        /**
+         * Run cpu and Renderer
+         */
+        Cpu.cpuRun(this);
+        this.runRendererObject();
+    }
+    runRendererObject() {
         setInterval(() => {
-            this.displayObject.clearScreen();
-            this.displayObject.renderDisplay(this.display);
+            this.displayObject.diplayRun(this.display);
             console.log("Display's current state:");
             console.dir(this.display);
         });
-        // test connection with renderer
-        // let switcher = true;
-        // setInterval(() => {
-        //   this.displayObject.clearScreen();
-        //   this.displayObject.run_rendererDemo(switcher);
-        //   if (switcher) switcher = false;
-        //   else switcher = true;
-        // }, 1000);
     }
     sendInstructionToCpu(instruction) {
-        this.cpu.processInstruction(instruction);
+        Cpu.processInstruction(instruction, this);
         console.dir(this.display);
         console.dir(this.memory);
     }
