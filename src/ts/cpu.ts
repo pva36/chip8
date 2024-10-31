@@ -16,7 +16,6 @@ export class Cpu {
       let instruction = 0x00_00 | (highByte << 8);
       instruction = instruction | lowByte;
 
-      // console.log("pc", ch8.pc);
       Cpu.processInstruction(instruction, ch8);
       ch8.pc += 2; // increment after each operation
     });
@@ -37,7 +36,6 @@ export class Cpu {
     } else {
       // get the first nibble
       let firstNibble = instruction & 0xf000;
-      // console.log(firstNibble);
 
       switch (firstNibble) {
         case 0x0000:
@@ -53,17 +51,14 @@ export class Cpu {
           break;
 
         case 0x3000:
-          console.log(`instruction starts with 0x3`);
           console.error(`0x3nnn not implemented`);
           break;
 
         case 0x4000:
-          console.log(`instruction starts with 0x4`);
           console.error(`0x4nnn not implemented`);
           break;
 
         case 0x5000:
-          console.log(`instruction starts with 0x5`);
           console.error(`0x5nnn not implemented`);
           break;
 
@@ -76,12 +71,10 @@ export class Cpu {
           break;
 
         case 0x8000:
-          console.log(`instruction starts with 0x8`);
           console.error(`0x8nnn not implemented`);
           break;
 
         case 0x9000:
-          console.log(`instruction starts with 0x9`);
           console.error(`0x9nnn not implemented`);
           break;
 
@@ -90,12 +83,10 @@ export class Cpu {
           break;
 
         case 0xb000:
-          console.log(`instruction starts with 0xB`);
           console.error(`0xBnnn not implemented`);
           break;
 
         case 0xc000:
-          console.log(`instruction starts with 0xC`);
           console.error(`0xCnnn not implemented`);
           break;
 
@@ -104,12 +95,10 @@ export class Cpu {
           break;
 
         case 0xe000:
-          console.log(`instruction starts with 0xE`);
           console.error(`0xEnnn not implemented`);
           break;
 
         case 0xf000:
-          console.log(`instruction starts with 0xF`);
           console.error(`0xFnnn not implemented`);
           break;
 
@@ -136,11 +125,9 @@ export class Cpu {
       case 0x0d00:
       case 0x0e00:
       case 0x0f00:
-        /// console.log(`Instruction has the form 0x0nnn`);
-        Cpu.sys0nnn(instruction);
+        Cpu.sys0nnn(instruction, ch8);
         break;
       case 0x0000:
-        // console.log(`Instruction has the form 0x00nn`);
         let thirdFourthNibble = instruction & 0x00ff;
         switch (thirdFourthNibble) {
           case 0x00e0:
@@ -150,7 +137,11 @@ export class Cpu {
             Cpu.ret00EE(ch8);
             break;
           default:
-            throw Error("Error at switch 0x00Ex");
+            Cpu.sys0nnn(instruction, ch8);
+          // throw Error(
+          //   "Error at switch 0x00--: " +
+          //     `cannot handle instruction ${instruction.toString(16)}`,
+          // );
         }
         break;
       default:
@@ -161,19 +152,17 @@ export class Cpu {
   /**
    * Instructions ------------------------------------------------------------
    */
-  static sys0nnn(instruction: number): void {
+  static sys0nnn(instruction: number, ch8: Chip8): void {
     // TODO: implement
-    console.log(`inside sys0nnn, instruction ${instruction.toString(16)}`);
+    const address = 0x0fff & instruction;
+    ch8.pc = address;
   }
 
   static cls00E0(ch8: Chip8): void {
-    // console.log(`inside cls00E0`);
     ch8.clearDisplay();
   }
 
   static ret00EE(ch8: Chip8): void {
-    // console.log(`inside ret00EE`);
-
     // set pc to address at the top of the stack
     ch8.pc = ch8.getStack(ch8.sp);
 
@@ -189,13 +178,10 @@ export class Cpu {
   }
 
   static jp1nnn(instruction: number, ch8: Chip8) {
-    // console.log(`js1nnn`);
     // the interpreter sets the program counter to `nnn`
     let address = instruction & 0x0fff;
 
     ch8.pc = address;
-
-    // console.log("pc: ", this.chip8.pc);
   }
 
   static call2nnn(instruction: number, ch8: Chip8) {
@@ -203,6 +189,7 @@ export class Cpu {
     // The interpreter increments the stack pointer, then puts the current PC
     // on the top of the stack. The PC is then set to nnn
     const adress = instruction & 0x0fff;
+
     ch8.setStack(++ch8.sp, ch8.pc);
     ch8.pc = adress;
   }
@@ -219,12 +206,8 @@ export class Cpu {
 
     const value = instruction & 0x00ff;
     const index = (instruction & 0x0f00) >> 8;
-    // console.log("value =", value.toString(16), ", index =", index.toString(16));
 
     ch8.setV(index, value);
-    // console.log(
-    //   `index = ${index}, value = ${value}, V${index.toString(16)} = ${ch8.getV(index)}`,
-    // );
   }
 
   static add7xkk(instruction: number, ch8: Chip8) {
@@ -277,10 +260,8 @@ export class Cpu {
     const n = instruction & 0x000f;
 
     // get Vx and Vy
-    // Vx contains the y-coordinate and viceversa ()
     const colsCoord = ch8.getV(x);
     let rowsCoord = ch8.getV(y);
-    console.log(`xCoord = ${colsCoord}, yCoord = ${rowsCoord}`);
 
     // fill array with sprite's data
     let spriteArray: number[] = [];
@@ -288,10 +269,6 @@ export class Cpu {
     for (let j = 0; j < n; memIndex++, j++) {
       spriteArray.push(ch8.memory[memIndex]);
     }
-
-    // console.log("sprite array:");
-    // const arraystring = spriteArray.map((num) => num.toString(2));
-    // console.dir(arraystring);
 
     // VF
     ch8.setV(0xf, 0);
@@ -306,15 +283,6 @@ export class Cpu {
 
       for (let j = 8; j > 0; j--, bitOffset--, currentCol++, mask = mask >> 1) {
         let displayPixelOldValue = ch8.display[currentRow][currentCol];
-        // console.log("using mask =", mask.toString(2));
-        // console.log("and bit offset =", bitOffset);
-        // const extractedBit = (byte & mask) >> bitOffset;
-        // console.log(
-        //   "from",
-        //   byte.toString(16),
-        //   "extracted",
-        //   extractedBit.toString(16),
-        // );
         ch8.display[currentRow][currentCol] ^= (byte & mask) >> bitOffset;
 
         // first check VF is already set to 1. If not, check collision.

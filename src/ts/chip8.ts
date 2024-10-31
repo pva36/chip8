@@ -203,12 +203,12 @@ export class Chip8 {
   /**
    * Interaction with other elements of the system
    */
-  fetchBinary(arrayBin: Uint8Array) {
-    // console.log([].map.call(arrayBin, (x: number) => x.toString(16)));
 
-    // prepare chip8 for execution:
+  fetchBinary(arrayBin: Uint8Array) {
+    /**
+     * prepare chip8 for execution:
+     */
     // clean memory and registers
-    //
     // set fonts
     this.setFonts();
 
@@ -217,11 +217,9 @@ export class Chip8 {
     for (const byte of arrayBin) {
       this.memory[memIndex++] = byte;
     }
-    console.log("program loaded in memory: ");
-    // console.log(this.memory);
 
     /**
-     * Run cpu and Renderer
+     * Run Cpu and Renderer
      */
     Cpu.cpuRun(this);
     this.runRendererObject();
@@ -230,113 +228,106 @@ export class Chip8 {
   runRendererObject() {
     setInterval(() => {
       this.displayObject.diplayRun(this.display);
-      console.log("Display's current state:");
-      console.dir(this.display);
     });
   }
 
   sendInstructionToCpu(instruction: number) {
     Cpu.processInstruction(instruction, this);
-    console.dir(this.display);
-    console.dir(this.memory);
   }
 
   clearDisplay(): void {
     this.display = Array.from({ length: 32 }, () => Array(64).fill(0));
-    // console.log(this.display);
   }
 
   setFonts(): void {
     const fontsArray = [
+      0xf0, // 0
+      0x90,
+      0x90,
+      0x90,
       0xf0,
-      0x90,
-      0x90,
-      0x90,
-      0xf0, //0
-      0x20,
+      0x20, // 1
       0x60,
       0x20,
       0x20,
-      0x70, // 1
-      0xf0,
-      0x10,
-      0xf0,
-      0x80,
+      0x70,
       0xf0, // 2
-      0xf0,
       0x10,
-      0xf0,
-      0x10,
-      0xf0, // 3
-      0x90,
-      0x90,
-      0xf0,
-      0x10,
-      0x10, // 4
       0xf0,
       0x80,
       0xf0,
+      0xf0, // 3
+      0x10,
+      0xf0,
+      0x10,
+      0xf0,
+      0x90, // 4
+      0x90,
+      0xf0,
+      0x10,
       0x10,
       0xf0, // 5
+      0x80,
       0xf0,
+      0x10,
+      0xf0,
+      0xf0, // 6
       0x80,
       0xf0,
       0x90,
-      0xf0, // 6
       0xf0,
+      0xf0, // 7
       0x10,
       0x20,
       0x40,
-      0x40, // 7
-      0xf0,
-      0x90,
-      0xf0,
-      0x90,
+      0x40,
       0xf0, // 8
+      0x90,
       0xf0,
+      0x90,
+      0xf0,
+      0xf0, // 9
       0x90,
       0xf0,
       0x10,
-      0xf0, // 9
+      0xf0,
+      0xf0, // A
+      0x90,
       0xf0,
       0x90,
-      0xf0,
-      0x90,
-      0x90, // A
-      0xe0,
-      0x90,
-      0xe0,
       0x90,
       0xe0, // B
-      0xf0,
-      0x80,
-      0x80,
-      0x80,
-      0xf0, // C
+      0x90,
       0xe0,
       0x90,
-      0x90,
-      0x90,
+      0xe0, // C
+      0xf0,
+      0x80,
+      0x80,
+      0x80,
+      0xf0,
       0xe0, // D
-      0xf0,
-      0x80,
-      0xf0,
-      0x80,
+      0x90,
+      0x90,
+      0x90,
+      0xe0,
       0xf0, // E
-      0xf0,
       0x80,
       0xf0,
       0x80,
-      0x80, // F
+      0xf0,
+      0xf0, // F
+      0x80,
+      0xf0,
+      0x80,
+      0x80,
     ];
     for (let i = 0x50, j = 0; i <= 0x9f; i++, j++) {
       this.memory[i] = fontsArray[j];
     }
   }
 
-  // chip 8 helper functions
-  // clear registers (reset)
-  // get instruction (to pass it to the `cpu`)
-  // get system info (in order to display info in the browser as a gui `debugger`)
-  //
+  // TODO: clear registers (reset)
+
+  // TODO: get system info (in order to display info in the browser as a gui `debugger`)
 }
