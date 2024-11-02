@@ -1,5 +1,5 @@
 // to avoid declaring an interface
-import { Chip8 } from "./chip8";
+import { Chip8 } from "./chip8.js";
 
 export class Cpu {
   /**

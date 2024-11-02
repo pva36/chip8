@@ -1,5 +1,5 @@
-import { Cpu } from "./cpu";
-import { Renderer } from "./renderer";
+import { Cpu } from "./cpu.js";
+import { Renderer } from "./renderer.js";
 
 export class Chip8 {
   /**
