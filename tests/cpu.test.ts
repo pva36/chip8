@@ -14,7 +14,9 @@ test("test sys0nnn", () => {
     })(),
   ).toBe(0x111);
 });
+
 // TODO: cls00E0
+
 // ret00E
 // TODO: should I prevent subtraction when the stack pointer is 0,
 // or should I allow it, and how should I implement it if that is the case?
@@ -29,10 +31,25 @@ test("test ret00EE", () => {
     })(),
   ).toBe(0x00111);
 });
-// TODO: jp1nnn
 
-// test call2nnn
-// test("calll2n ", () => {});
+// clean chip8
+chip8.sp = 0;
+chip8.setStack(0, 0);
+
+// TODO: jp1nnn
+test("test jp1nnn", () => {
+  expect(
+    ((): number => {
+      Cpu.jp1nnn(0x0101, chip8);
+      return chip8.pc;
+    })(),
+  ).toBe(0x0101);
+});
+
+// TODO: call2nnn
+
 // TODO: ld6xkk
+
 // TODO: add7xkk
+
 // TODO: drwDxyn
