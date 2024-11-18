@@ -55,11 +55,11 @@ export class Cpu {
           break;
 
         case 0x4000:
-          console.error(`0x4nnn not implemented`);
+          Cpu.sne4xkk(instruction, ch8);
           break;
 
         case 0x5000:
-          console.error(`0x5nnn not implemented`);
+          Cpu.se5xy0(instruction, ch8);
           break;
 
         case 0x6000:
@@ -221,7 +221,17 @@ export class Cpu {
     }
   }
 
-  static se5xy0(instruction: number) {}
+  static se5xy0(instruction: number, ch8: Chip8) {
+    // Skip next instruction if Vx = Vy
+    // The interpreter compares register Vx to register Vy, and if they are
+    // equal, increments the program counter by 2.
+    const x = (instruction & 0x0f00) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+
+    if (ch8.getV(x) === ch8.getV(y)) {
+      ch8.pc += 2;
+    }
+  }
 
   static ld6xkk(instruction: number, ch8: Chip8) {
     // Set Vx = kk.
