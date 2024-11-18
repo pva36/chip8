@@ -3,6 +3,8 @@ import { Chip8 } from "../src/ts/chip8.js";
 
 const chip8 = new Chip8(1);
 
+// TODO: implement function that cleans all components of Chip8 object.
+
 // TODO: test sys0nnn
 test("test sys0nnn", () => {
   expect(
@@ -32,21 +34,46 @@ test("test ret00EE", () => {
   ).toBe(0x00111);
 });
 
-// clean chip8
-chip8.sp = 0;
-chip8.setStack(0, 0);
-
-// TODO: jp1nnn
+// jp1nnn
 test("test jp1nnn", () => {
   expect(
     ((): number => {
+      // clean chip8
+      chip8.sp = 0;
+      chip8.setStack(0, 0);
+
       Cpu.jp1nnn(0x0101, chip8);
       return chip8.pc;
     })(),
   ).toBe(0x0101);
 });
 
-// TODO: call2nnn
+// call2nnn
+describe("call2nnn tests", () => {
+  test("test PC modification", () => {
+    expect(
+      ((): number => {
+        // clean chip8
+        chip8.pc = 0;
+        chip8.sp = 0;
+
+        Cpu.call2nnn(0x21ba, chip8);
+
+        return chip8.pc;
+      })(),
+    ).toBe(0x01ba);
+  });
+
+  test("test stack pointer modification", () => {
+    expect(
+      ((): number => {
+        return chip8.sp;
+      })(),
+    ).toBe(0x1);
+  });
+
+  // TODO: test("test top of the stack modification");
+});
 
 // TODO: ld6xkk
 

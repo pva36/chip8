@@ -189,7 +189,6 @@ export class Cpu {
     // The interpreter increments the stack pointer, then puts the current PC
     // on the top of the stack. The PC is then set to nnn
     const adress = instruction & 0x0fff;
-
     ch8.setStack(++ch8.sp, ch8.pc);
     ch8.pc = adress;
   }
