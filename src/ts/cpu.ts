@@ -208,7 +208,18 @@ export class Cpu {
     }
   }
 
-  static sne4xkk(instruction: number) {}
+  static sne4xkk(instruction: number, ch8: Chip8) {
+    // Skip next instruction if Vx != kk.
+    // The interpreter compares register Vx to kk, and if they are not equal,
+    // increments the program counter by 2.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const kk = instruction & 0x00ff;
+
+    if (ch8.getV(x) !== kk) {
+      ch8.pc += 2;
+    }
+  }
 
   static se5xy0(instruction: number) {}
 
