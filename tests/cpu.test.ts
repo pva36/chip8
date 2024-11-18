@@ -1,9 +1,9 @@
 import { Cpu } from "../src/ts/cpu.js";
 import { Chip8 } from "../src/ts/chip8.js";
 
-// Mock canvas
 const chip8 = new Chip8(1);
 
+// TODO: test sys0nnn
 test("test sys0nnn", () => {
   expect(
     ((): number => {
@@ -14,9 +14,21 @@ test("test sys0nnn", () => {
     })(),
   ).toBe(0x111);
 });
-// TODO: sys0nnn
 // TODO: cls00E0
-// TODO: ret00E
+// ret00E
+// TODO: should I prevent subtraction when the stack pointer is 0,
+// or should I allow it, and how should I implement it if that is the case?
+test("test ret00EE", () => {
+  expect(
+    ((): number => {
+      chip8.setStack(3, 0x00111);
+      chip8.sp = 3;
+
+      Cpu.ret00EE(chip8);
+      return chip8.pc;
+    })(),
+  ).toBe(0x00111);
+});
 // TODO: jp1nnn
 
 // test call2nnn
