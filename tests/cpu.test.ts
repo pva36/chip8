@@ -3,13 +3,12 @@ import { Chip8 } from "../src/ts/chip8.js";
 
 const chip8 = new Chip8(1);
 
-// TODO: implement function that cleans all components of Chip8 object.
-
 // TODO: test sys0nnn
 test("test sys0nnn", () => {
   expect(
     ((): number => {
-      chip8.pc = 0;
+      chip8.reset();
+
       Cpu.sys0nnn(0x0111, chip8);
       const pc: number = chip8.pc;
       return pc;
@@ -25,6 +24,8 @@ test("test sys0nnn", () => {
 test("test ret00EE", () => {
   expect(
     ((): number => {
+      chip8.reset();
+
       chip8.setStack(3, 0x00111);
       chip8.sp = 3;
 
@@ -38,9 +39,7 @@ test("test ret00EE", () => {
 test("test jp1nnn", () => {
   expect(
     ((): number => {
-      // clean chip8
-      chip8.sp = 0;
-      chip8.setStack(0, 0);
+      chip8.reset();
 
       Cpu.jp1nnn(0x0101, chip8);
       return chip8.pc;
@@ -53,9 +52,7 @@ describe("call2nnn tests", () => {
   test("test PC modification", () => {
     expect(
       ((): number => {
-        // clean chip8
-        chip8.pc = 0;
-        chip8.sp = 0;
+        chip8.reset();
 
         Cpu.call2nnn(0x21ba, chip8);
 
