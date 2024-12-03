@@ -204,13 +204,22 @@ export class Chip8 {
    * Interaction with other elements of the system
    */
 
-  fetchBinary(arrayBin: Uint8Array) {
+  /**
+   * Reset the Chip8 object to an original state.
+   */
+  reset(): void {
+    // TODO: clean chip8 components.
+    this.clearRegisters();
+
+    this.clearDisplay();
+    this.setFonts();
+  }
+
+  fetchBinary(arrayBin: Uint8Array): void {
     /**
      * prepare chip8 for execution:
      */
-    // clean memory and registers
-    // set fonts
-    this.setFonts();
+    this.reset();
 
     // load program into memory, starting from location 0x200;
     let memIndex = 0x200;
@@ -225,13 +234,13 @@ export class Chip8 {
     this.runRendererObject();
   }
 
-  runRendererObject() {
+  runRendererObject(): void {
     setInterval(() => {
       this.displayObject.diplayRun(this.display);
     });
   }
 
-  sendInstructionToCpu(instruction: number) {
+  sendInstructionToCpu(instruction: number): void {
     Cpu.processInstruction(instruction, this);
   }
 
@@ -327,7 +336,35 @@ export class Chip8 {
     }
   }
 
-  // TODO: clear registers (reset)
+  clearRegisters(): void {
+    // clean Memory (8-bit)
+    for (let i = this.memory.length - 1; i >= 0; i--) {
+      this.memory[i] = 0;
+    }
+
+    // clean Vx registers (8-bit)
+    for (let i = this._v.length - 1; i >= 0; i--) {
+      this.setV(i, 0);
+    }
+
+    // clean I register (16-bit)
+    this.i = 0;
+
+    // clean delay and sound timers (8-bit registers)
+    this.delayTimer = 0;
+    this.soundTimer = 0;
+
+    // clean Program Counter (16-bit)
+    this.pc = 0;
+
+    // clean Stack Pointer (8-bit)
+    this.sp = 0;
+
+    // clean Stack
+    for (let i = this._stack.length - 1; i >= 0; i--) {
+      this.setStack(i, 0);
+    }
+  }
 
   // TODO: get system info (in order to display info in the browser as a gui `debugger`)
 }
