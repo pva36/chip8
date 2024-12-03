@@ -54,12 +54,14 @@ export class Chip8 {
   // Display
   display: number[][];
 
+  // TODO: see runRendererObject method
   displayObject: Renderer;
 
   /**
    * Constructor ------------------------------------------------------------
    */
   constructor(displayObject: any) {
+    // TODO: see runRendererObject method.
     // display object of class Renderer
     this.displayObject = displayObject;
 
@@ -215,6 +217,9 @@ export class Chip8 {
     this.setFonts();
   }
 
+  /**
+   * Load `arrayBin` into chip8's memory and run chip8.
+   */
   fetchBinary(arrayBin: Uint8Array): void {
     /**
      * prepare chip8 for execution:
@@ -234,20 +239,34 @@ export class Chip8 {
     this.runRendererObject();
   }
 
+  // TODO: clean this code, so it doesn't assume a particular object, but a
+  // general function that receives the display at each interval.
+  /**
+   * Run an 'asynchronous infinite loop' that executes the Renderer object.
+   */
   runRendererObject(): void {
     setInterval(() => {
       this.displayObject.diplayRun(this.display);
     });
   }
 
+  /**
+   * Sends `instruction` to be processed by the Chip8's cpu.
+   */
   sendInstructionToCpu(instruction: number): void {
     Cpu.processInstruction(instruction, this);
   }
 
+  /**
+   * Clear Chip8's display.
+   */
   clearDisplay(): void {
     this.display = Array.from({ length: 32 }, () => Array(64).fill(0));
   }
 
+  /**
+   * Set Chip8's fonts starting at address 0x50.
+   */
   setFonts(): void {
     const fontsArray = [
       0xf0, // 0
@@ -336,6 +355,10 @@ export class Chip8 {
     }
   }
 
+  /**
+   * Cleans memory, V registers, I register, delay and sound timers, program
+   * counter, stack pointer and stack.
+   */
   clearRegisters(): void {
     // clean Memory (8-bit)
     for (let i = this.memory.length - 1; i >= 0; i--) {
