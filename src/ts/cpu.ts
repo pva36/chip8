@@ -71,7 +71,8 @@ export class Cpu {
           break;
 
         case 0x8000:
-          console.error(`0x8nnn not implemented`);
+          Cpu.processInstruction8(instruction, ch8);
+          // console.error(`0x8nnn not implemented`);
           break;
 
         case 0x9000:
@@ -146,6 +147,36 @@ export class Cpu {
         break;
       default:
         throw Error("Error at switch of 0x0---");
+    }
+  }
+  static processInstruction8(instruction: number, ch8: Chip8) {
+    // TODO
+    const fourthNibble = instruction & 0x000f;
+
+    switch (fourthNibble) {
+      case 0:
+        this.ld8xy0(instruction, ch8);
+        break;
+      case 1:
+        this.or8xy1(instruction, ch8);
+        break;
+      case 2:
+        this.and8xy2(instruction, ch8);
+        break;
+      case 3:
+        break;
+      case 4:
+        break;
+      case 5:
+        break;
+      case 6:
+        break;
+      case 7:
+        break;
+      case 0xe:
+        break;
+      default:
+        throw Error(`unknown instruction hex: ${instruction.toString(16)}`);
     }
   }
 
