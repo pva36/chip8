@@ -263,9 +263,39 @@ export class Cpu {
     ch8.setV(x, value);
   }
 
-  static or8xy1(instruction: number) {}
+  static or8xy1(instruction: number, ch8: Chip8) {
+    // Set Vx = Vx OR Vy.
+    // Performs a bitwise OR on the values of Vx and Vy, then stores the result
+    // in Vx. A bitwise OR compares the corresponding bits from two values, and
+    // if either bit is 1, then the same bit in the result is also 1. Otherwise,
+    // it is 0.
 
-  static and8xy2(instruction: number) {}
+    const x = (instruction & 0x0f00) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+
+    const vxValue = ch8.getV(x);
+    const vyValue = ch8.getV(y);
+
+    const finalValue = vxValue | vyValue;
+    ch8.setV(x, finalValue);
+  }
+
+  static and8xy2(instruction: number, ch8: Chip8) {
+    // Set Vx = Vx AND Vy.
+    // Performs a bitwise AND on the values of Vx and Vy, then stores the result
+    // in Vx. A bitwise AND compares the corresponding bits from two values, and
+    // if both bits are 1, then the same bit in the result is also 1. Otherwise,
+    // it is 0.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+
+    const vxValue = ch8.getV(x);
+    const vyValue = ch8.getV(y);
+
+    const finalValue = vxValue & vyValue;
+    ch8.setV(x, finalValue);
+  }
 
   static xor8xy3(instruction: number) {}
 
