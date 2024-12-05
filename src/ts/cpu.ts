@@ -252,7 +252,16 @@ export class Cpu {
     ch8.setV(index, value + currentValue);
   }
 
-  static ld8xy0(instruction: number) {}
+  static ld8xy0(instruction: number, ch8: Chip8) {
+    // Set Vx = Vy
+    // Stores the value of register Vy in register Vx.
+
+    const x = (instruction & 0x00f0) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+
+    const value = ch8.getV(y);
+    ch8.setV(x, value);
+  }
 
   static or8xy1(instruction: number) {}
 
