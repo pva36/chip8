@@ -2,8 +2,11 @@ import { Cpu } from "./cpu.js";
 import { Renderer } from "./renderer.js";
 
 export class Chip8 {
+  // Static Methods ----------------------------------------------------------
+
   /**
-   * Static Methods ----------------------------------------------------------
+   * If `input` is negative or greater than 0xffff throw an error, else return
+   * true.
    */
   static check16bitRegInput(input: number, registerName: string): boolean {
     if (input < 0) {
@@ -14,6 +17,10 @@ export class Chip8 {
     return true;
   }
 
+  /**
+   * If `input` is negative or greater than 0xff throw an error, else return
+   * true.
+   */
   static check8bitRegInput(input: number, registerName: string): boolean {
     if (input < 0) {
       throw Error(`${registerName} cannot hold negative values!`);
@@ -23,9 +30,7 @@ export class Chip8 {
     return true;
   }
 
-  /**
-   * Variable declarations ---------------------------------------------------
-   */
+  // Variable declarations ---------------------------------------------------
 
   // Memory
   memory: Uint8Array;
@@ -57,9 +62,7 @@ export class Chip8 {
   // TODO: see runRendererObject method
   displayObject: Renderer;
 
-  /**
-   * Constructor ------------------------------------------------------------
-   */
+  // Constructor ------------------------------------------------------------
   constructor(displayObject: any) {
     // TODO: see runRendererObject method.
     // display object of class Renderer
@@ -93,9 +96,7 @@ export class Chip8 {
     this.setFonts();
   }
 
-  /**
-   * Getters and Setters -----------------------------------------------------
-   */
+  // Getters and Setters -----------------------------------------------------
 
   // Vx Registers
   // TODO: clean check logic
@@ -212,9 +213,7 @@ export class Chip8 {
     }
   }
 
-  /**
-   * Interaction with other elements of the system
-   */
+  // Interaction with other elements of the system
 
   /**
    * Reset the Chip8 object to an original state.

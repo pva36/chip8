@@ -52,7 +52,7 @@ async function sendBinary(inputElement: HTMLInputElement | null) {
     throw Error("input element that get the binary file is null");
   } else {
     const inputElementVer = inputElement as HTMLInputElement;
-    console.log("in else of 'sendBinary'");
+    // console.log("in else of 'sendBinary'");
     if (inputElementVer.files!.length < 1) {
       alert("Please select a file from your compute!");
     } else {

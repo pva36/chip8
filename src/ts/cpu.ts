@@ -155,15 +155,16 @@ export class Cpu {
 
     switch (fourthNibble) {
       case 0:
-        this.ld8xy0(instruction, ch8);
+        Cpu.ld8xy0(instruction, ch8);
         break;
       case 1:
-        this.or8xy1(instruction, ch8);
+        Cpu.or8xy1(instruction, ch8);
         break;
       case 2:
-        this.and8xy2(instruction, ch8);
+        Cpu.and8xy2(instruction, ch8);
         break;
       case 3:
+        Cpu.xor8xy3(instruction, ch8);
         break;
       case 4:
         break;
@@ -287,7 +288,7 @@ export class Cpu {
     // Set Vx = Vy
     // Stores the value of register Vy in register Vx.
 
-    const x = (instruction & 0x00f0) >> 8;
+    const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
     const value = ch8.getV(y);
@@ -328,7 +329,22 @@ export class Cpu {
     ch8.setV(x, finalValue);
   }
 
-  static xor8xy3(instruction: number) {}
+  static xor8xy3(instruction: number, ch8: Chip8) {
+    // Set Vx = Vx XOR Vy.
+    // Performs a bitwise exclusive OR on the values of Vx and Vy, then stores
+    // the result in Vx. An exclusive OR compares the corresponding bits from
+    // two values, and if the bits are not both the same, then the
+    // corresponding bit in the result is set to 1. Otherwise, it is 0.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+
+    const vxValue = ch8.getV(x);
+    const vyValue = ch8.getV(y);
+
+    const finalValue = vxValue ^ vyValue;
+    ch8.setV(x, finalValue);
+  }
 
   static add8xy4(instruction: number) {}
 
