@@ -106,11 +106,21 @@ export class Chip8 {
       return this._v[index];
     }
   }
+
+  /**
+   * Set `value` as the value of the V(`index`)  register. If `value` is greater
+   * then 255 (0xff), the final value is (`value` - 255) - 1.
+   */
   setV(index: number, value: number) {
     if (index < 0 || index > 0xf) {
       throw Error(`V[<<${index}>>] doesn't exist!`);
-    } else if (value < 0 || value > 0xff) {
-      throw Error(`V[${index} cannot hold values greater than 255 (0xFF)]`);
+    }
+    if (value < 0) {
+      console.error(`value: ${value} is negative`);
+    }
+    if (value > 0xff) {
+      console.warn(`value: ${value} is greater than 255`);
+      // throw Error(`V[${index}] cannot hold values greater than 255 (0xFF)`);
     }
     this._v[index] = value;
   }
