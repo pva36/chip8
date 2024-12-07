@@ -176,6 +176,7 @@ export class Cpu {
         Cpu.shr8xy6(instruction, ch8);
         break;
       case 7:
+        Cpu.subn8xy7(instruction, ch8);
         break;
       case 0xe:
         break;
@@ -410,7 +411,25 @@ export class Cpu {
     ch8.setV(x, vxValue >> 1);
   }
 
-  static subn8xy7(instruction: number) {}
+  static subn8xy7(instruction: number, ch8: Chip8) {
+    // Set Vx = Vy - Vx, set VF = NOT borrow.
+    // If Vy > Vx, then Vf is set to 1, otherwise 0. Then Vx is subtracted from
+    // Vy, and the results stored in Vx.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+
+    const vxValue = ch8.getV(x);
+    const vyValue = ch8.getV(y);
+
+    if (vyValue > vxValue) {
+      ch8.setV(0xf, 1);
+    } else {
+      ch8.setV(0xf, 0);
+    }
+
+    ch8.setV(x, vyValue - vxValue);
+  }
 
   static shl8xyE(instruction: number) {}
 
