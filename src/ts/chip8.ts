@@ -110,7 +110,7 @@ export class Chip8 {
 
   /**
    * Set `value` as the value of the V(`index`)  register. If `value` is greater
-   * then 255 (0xff), the final value is (`value` - 255) - 1.
+   * than 255 (0xff), the final value is (`value` - 255) - 1.
    */
   setV(index: number, value: number) {
     if (index < 0 || index > 0xf) {
