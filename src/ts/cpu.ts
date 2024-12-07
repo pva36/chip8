@@ -167,6 +167,7 @@ export class Cpu {
         Cpu.xor8xy3(instruction, ch8);
         break;
       case 4:
+        Cpu.add8xy4(instruction, ch8);
         break;
       case 5:
         break;
@@ -346,7 +347,28 @@ export class Cpu {
     ch8.setV(x, finalValue);
   }
 
-  static add8xy4(instruction: number) {}
+  static add8xy4(instruction: number, ch8: Chip8) {
+    // Set Vx = Vx + Vy, set VF = carry.
+    // The values of Vx and Vy are added together. If the result is greater
+    // than 8 bits (i.e., > 255) VF is set to 1, otherwise 0. Only the lowest
+    // 8 bits of the result are kept, and stored in Vx.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+
+    const vxValue = ch8.getV(x);
+    const vyValue = ch8.getV(y);
+
+    const sum = vxValue + vyValue;
+
+    if (sum > 255) {
+      ch8.setV(0xf, 1);
+      ch8.setV(x, sum & 0xff);
+    } else {
+      ch8.setV(0xf, 0);
+      ch8.setV(x, sum);
+    }
+  }
 
   static sub8xy5(instruction: number) {}
 
