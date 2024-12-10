@@ -190,6 +190,9 @@ export class Cpu {
     const secondByte = instruction & 0x00ff;
 
     switch (secondByte) {
+      case 0x1e:
+        Cpu.addFx1E(instruction, ch8);
+        break;
       case 0x33:
         Cpu.ldFx33(instruction, ch8);
         break;
@@ -577,7 +580,16 @@ export class Cpu {
 
   static ldFx18(instruction: number) {}
 
-  static addFx1E(instruction: number) {}
+  static addFx1E(instruction: number, ch8: Chip8) {
+    // Set I = I + Vx
+    // The values of I and Vx are added, and the results are stored in I.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const iValue = ch8.i;
+    const vxValue = ch8.getV(x);
+
+    ch8.i = iValue + vxValue;
+  }
 
   static ldFx29(instruction: number) {}
 
