@@ -76,7 +76,7 @@ export class Cpu {
           break;
 
         case 0x9000:
-          console.error(`0x9nnn not implemented`);
+          Cpu.sne9xy0(instruction, ch8);
           break;
 
         case 0xa000:
