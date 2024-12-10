@@ -88,7 +88,7 @@ export class Cpu {
           break;
 
         case 0xc000:
-          console.error(`0xCnnn not implemented`);
+          Cpu.rndCxkk(instruction, ch8);
           break;
 
         case 0xd000:
@@ -215,6 +215,7 @@ export class Cpu {
   }
 
   static jp1nnn(instruction: number, ch8: Chip8) {
+    // TODO: test not passed.
     // the interpreter sets the program counter to `nnn`
     let address = instruction & 0x0fff;
 
@@ -222,6 +223,7 @@ export class Cpu {
   }
 
   static call2nnn(instruction: number, ch8: Chip8) {
+    // TODO: test not passed.
     // Call subroutine at nnn
     // The interpreter increments the stack pointer, then puts the current PC
     // on the top of the stack. The PC is then set to nnn
@@ -478,7 +480,21 @@ export class Cpu {
     ch8.pc = nnn + ch8.getV(0);
   }
 
-  static rndCxkk(instruction: number) {}
+  static rndCxkk(instruction: number, ch8: Chip8) {
+    // Set Vx = random byte and kk.
+    // The interpreter generates a random number from 0 to 255,
+    // which is then ANDed with the value kk. The results are
+    // stored in Vx.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const kk = instruction & 0x00ff;
+
+    const MIN = 0;
+    const MAX = 256;
+    const randomByte = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
+
+    ch8.setV(x, kk & randomByte);
+  }
 
   static drwDxyn(instruction: number, ch8: Chip8) {
     // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
