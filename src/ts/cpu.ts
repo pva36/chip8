@@ -100,7 +100,7 @@ export class Cpu {
           break;
 
         case 0xf000:
-          console.error(`0xFnnn not implemented`);
+          Cpu.processInstructionF(instruction, ch8);
           break;
 
         default:
@@ -183,6 +183,21 @@ export class Cpu {
         break;
       default:
         throw Error(`unknown instruction hex: ${instruction.toString(16)}`);
+    }
+  }
+  static processInstructionF(instruction: number, ch8: Chip8) {
+    // TODO
+    const secondByte = instruction & 0x00ff;
+
+    switch (secondByte) {
+      case 0x65:
+        Cpu.ldFx65(instruction, ch8);
+        break;
+      default:
+        console.warn(
+          `instruction 0x${instruction.toString(16)} not implemented.`,
+        );
+        break;
     }
   }
 
@@ -564,7 +579,19 @@ export class Cpu {
 
   static ldFx55(instruction: number) {}
 
-  static ldFx65(instruction: number) {}
+  static ldFx65(instruction: number, ch8: Chip8) {
+    // Read registers V0 through Vx from memory starting at location I.
+    // The interpreter reads values from memory starting at location I
+    // into registers V0 through Vx.
+
+    const x = (instruction & 0x0f00) >> 8;
+
+    let address = ch8.i;
+
+    for (let i = 0; i <= x; i++) {
+      ch8.setV(i, ch8.memory[address++]);
+    }
+  }
 
   /**
    * Super chip-48 Instructions
