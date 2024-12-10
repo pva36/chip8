@@ -190,6 +190,8 @@ export class Cpu {
     const secondByte = instruction & 0x00ff;
 
     switch (secondByte) {
+      case 0x55:
+        Cpu.ldFx55(instruction, ch8);
       case 0x65:
         Cpu.ldFx65(instruction, ch8);
         break;
@@ -577,7 +579,19 @@ export class Cpu {
 
   static ldFx33(instruction: number) {}
 
-  static ldFx55(instruction: number) {}
+  static ldFx55(instruction: number, ch8: Chip8) {
+    // Store registers V0 through Vx in memory starting at location I.
+    // The interpreter copies the values of registers V0 through Vx into
+    // memory, starting at the address in I.
+
+    const x = (instruction & 0x0f00) >> 8;
+
+    let address = ch8.i;
+
+    for (let i = 0; i <= x; i++) {
+      ch8.memory[address++] = ch8.getV(i);
+    }
+  }
 
   static ldFx65(instruction: number, ch8: Chip8) {
     // Read registers V0 through Vx from memory starting at location I.
