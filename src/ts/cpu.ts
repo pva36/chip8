@@ -84,7 +84,7 @@ export class Cpu {
           break;
 
         case 0xb000:
-          console.error(`0xBnnn not implemented`);
+          Cpu.jpBnnn(instruction, ch8);
           break;
 
         case 0xc000:
@@ -470,7 +470,13 @@ export class Cpu {
     ch8.i = address;
   }
 
-  static jpBnnn(instruction: number) {}
+  static jpBnnn(instruction: number, ch8: Chip8) {
+    // Jump to location nnn + V0
+    // The program counter is set to nnn plus the value of V0;
+    const nnn = instruction & 0x0fff;
+
+    ch8.pc = nnn + ch8.getV(0);
+  }
 
   static rndCxkk(instruction: number) {}
 
