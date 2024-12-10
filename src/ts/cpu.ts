@@ -446,7 +446,21 @@ export class Cpu {
     ch8.setV(x, vxValue << 1);
   }
 
-  static sne9xy0(instruction: number) {}
+  static sne9xy0(instruction: number, ch8: Chip8) {
+    // Skip next instruction if Vx != Vy.
+    // The values of Vx and Vy are compared, and if they are not equal, the
+    // program counter is increased by 2.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const y = (instruction & 0x00f0) >> 4;
+
+    const vxValue = ch8.getV(x);
+    const vyValue = ch8.getV(y);
+
+    if (!(vxValue === vyValue)) {
+      ch8.pc += 2;
+    }
+  }
 
   static ldAnnn(instruction: number, ch8: Chip8) {
     // Set I = nnn
