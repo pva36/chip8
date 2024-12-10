@@ -179,6 +179,7 @@ export class Cpu {
         Cpu.subn8xy7(instruction, ch8);
         break;
       case 0xe:
+        Cpu.shl8xyE(instruction, ch8);
         break;
       default:
         throw Error(`unknown instruction hex: ${instruction.toString(16)}`);
@@ -431,7 +432,19 @@ export class Cpu {
     ch8.setV(x, vyValue - vxValue);
   }
 
-  static shl8xyE(instruction: number) {}
+  static shl8xyE(instruction: number, ch8: Chip8) {
+    // Set Vx = Vx SHL 1.
+    // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise
+    // to 0. Then Vx is multiplied by 2.
+
+    const x = (instruction & 0x0f00) >> 8;
+
+    const vxValue = ch8.getV(x);
+
+    ch8.setV(0xf, (vxValue & 0b10000000) >> 7);
+
+    ch8.setV(x, vxValue << 1);
+  }
 
   static sne9xy0(instruction: number) {}
 

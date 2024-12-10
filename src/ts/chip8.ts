@@ -127,55 +127,63 @@ export class Chip8 {
   }
 
   // Getter and setter for I register.
-  // TODO: clean check logic
+
   get i() {
     return this._i[0];
   }
+
+  /**
+   * Set `value` as the value of the I register. If `value` is greater
+   * than 65,535 (0xffff), the final value is (`value` - 65,535) - 1.
+   */
   set i(value: number) {
     if (value < 0) {
-      throw Error("The I register cannot hold a negative value!");
+      console.warn("A negative value has been assigned to the I register!");
     } else if (value > 0xffff) {
-      throw Error(
-        "The I register cannot hold a number greater than 65.535(0xFFFF)",
+      console.warn(
+        "A value greater than 65.535(0xFFFF) has been putted in the I register",
       );
-    } else {
-      this._i[0] = value;
     }
+    this._i[0] = value;
   }
 
   // Getter and setter for Program Counter
-  // TODO: clean check logic
   get pc() {
     return this._pc[0];
   }
+
+  /**
+   * Set `value` as the value of the Program Counter. If `value` is greater
+   * than 65,535 (0xffff), the final value is (`value` - 65,535) - 1.
+   */
   set pc(value: number) {
     if (value < 0) {
-      throw Error("The PROGRAM COUNTER cannot hold a negative value!");
-    } else if (value > 0xffff) {
-      throw Error(
-        "The PROGRAM COUNTER register cannot hold a number greater than 65.535(0xFFFF)",
+      console.warn(
+        "A negative value has been assigned to the Program Counter!",
       );
-    } else {
-      this._pc[0] = value;
+    } else if (value > 0xffff) {
+      console.warn(
+        "A number greater than 65,535 has been assigned to the PROGRAM COUNTER",
+      );
     }
+    this._pc[0] = value;
   }
 
   // Getter and setter for Stack Pointer
-  // TODO clean check logic
   get sp() {
     return this._sp[0];
   }
   set sp(value: number) {
     // TODO: should a negative value in the stack pointer counter be allowed?
+    //
     if (value < 0) {
-      throw Error("The STACK POINTER cannot hold a negative value!");
+      console.warn("A negative value has been assigned to the Stack Pointer!");
     } else if (value > 0xffff) {
-      throw Error(
-        "The STACK POINTER cannot hold a number greater than 65.535(0xFFFF)",
+      console.warn(
+        "A number greater than 65,535 has been assigned to the Stack Pointer",
       );
-    } else {
-      this._sp[0] = value;
     }
+    this._sp[0] = value;
   }
 
   // Getter and setter for Stack
