@@ -190,8 +190,12 @@ export class Cpu {
     const secondByte = instruction & 0x00ff;
 
     switch (secondByte) {
+      case 0x33:
+        Cpu.ldFx33(instruction, ch8);
+        break;
       case 0x55:
         Cpu.ldFx55(instruction, ch8);
+        break;
       case 0x65:
         Cpu.ldFx65(instruction, ch8);
         break;
@@ -577,7 +581,23 @@ export class Cpu {
 
   static ldFx29(instruction: number) {}
 
-  static ldFx33(instruction: number) {}
+  static ldFx33(instruction: number, ch8: Chip8) {
+    // Store BCD representation of Vx in memory locations I, I+1, and I+2.
+    // The interpreter takes the decimal value of Vx, and places the hundreds
+    // digit in memory at location in I, the tens digit at location I+1, and
+    // the one digit at location I+2.
+
+    const x = (instruction & 0x0f00) >> 8;
+
+    const vxValue = ch8.getV(x);
+
+    let currentVxValue = vxValue;
+
+    for (let j = 2; j >= 0; j--) {
+      ch8.memory[ch8.i + j] = currentVxValue % 10;
+      currentVxValue = Math.floor(currentVxValue / 10);
+    }
+  }
 
   static ldFx55(instruction: number, ch8: Chip8) {
     // Store registers V0 through Vx in memory starting at location I.
