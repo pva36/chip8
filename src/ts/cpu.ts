@@ -224,18 +224,25 @@ export class Cpu {
   }
 
   static ret00EE(ch8: Chip8): void {
+    // TODO: test not passed.
+    // Return from a subroutine.
+    // The interpreter sets the program counter to the address at the top of
+    // the stack, then subtracts 1 from the stack pointer.
+
     // set pc to address at the top of the stack
     ch8.pc = ch8.getStack(ch8.sp);
 
     // subtracts 1 from the stack pointer.
-    try {
-      ch8.sp -= 1;
-    } catch {
-      console.error(
-        "Instruction tried to subtract from STACK POINTER with a negative value as a result",
-        "or tried to add to STACK POINTER with a value greater than 0xFF as a result",
-      );
-    }
+    ch8.sp -= 1;
+
+    // try {
+    //   ch8.sp -= 1;
+    // } catch {
+    //   console.error(
+    //     "Instruction tried to subtract from STACK POINTER with a negative value as a result",
+    //     "or tried to add to STACK POINTER with a value greater than 0xFF as a result",
+    //   );
+    // }
   }
 
   static jp1nnn(instruction: number, ch8: Chip8) {
