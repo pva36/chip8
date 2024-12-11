@@ -399,12 +399,12 @@ export class Cpu {
 
     const sum = vxValue + vyValue;
 
-    if (sum > 255) {
-      ch8.setV(0xf, 1);
+    if (sum > 0xff) {
       ch8.setV(x, sum & 0xff);
+      ch8.setV(0xf, 1);
     } else {
-      ch8.setV(0xf, 0);
       ch8.setV(x, sum);
+      ch8.setV(0xf, 0);
     }
   }
 
