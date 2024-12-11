@@ -442,9 +442,8 @@ export class Cpu {
 
     const leastVxBit = vxValue & 0b1;
 
-    ch8.setV(0xf, leastVxBit);
-
     ch8.setV(x, vxValue >> 1);
+    ch8.setV(0xf, leastVxBit);
   }
 
   static subn8xy7(instruction: number, ch8: Chip8) {
