@@ -419,13 +419,14 @@ export class Cpu {
     const vxValue = ch8.getV(x);
     const vyValue = ch8.getV(y);
 
-    if (vxValue > vyValue) {
+    ch8.setV(x, vxValue - vyValue);
+
+    // The flag's test is passed only with '>='
+    if (vxValue >= vyValue) {
       ch8.setV(0xf, 1);
     } else {
       ch8.setV(0xf, 0);
     }
-
-    ch8.setV(x, vxValue - vyValue);
   }
 
   static shr8xy6(instruction: number, ch8: Chip8) {
