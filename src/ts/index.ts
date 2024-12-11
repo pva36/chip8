@@ -1,11 +1,13 @@
 import { Chip8 } from "./chip8.js";
 import { Renderer } from "./renderer.js";
+import { Keyboard } from "./keyboard.js";
 
 const canvas: HTMLCanvasElement = document.querySelector("canvas#display")!;
 // const chip8 = new Chip8();
 const reader = new FileReader();
 const renderer = new Renderer(10, canvas, 64, 32);
-const chip8 = new Chip8(renderer);
+const keyboard = new Keyboard(document);
+const chip8 = new Chip8(renderer, keyboard);
 const romInputButton = document.querySelector("button[id='runGame']")!;
 const submitInstructionForm = document.querySelector("form#runInstruction");
 

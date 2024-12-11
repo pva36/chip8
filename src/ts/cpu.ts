@@ -129,6 +129,7 @@ export class Cpu {
       case 0x0c00:
       case 0x0d00:
       case 0x0e00:
+        Cpu.processInstructionE(instruction, ch8);
       case 0x0f00:
         Cpu.sys0nnn(instruction, ch8);
         break;
@@ -188,12 +189,41 @@ export class Cpu {
         throw Error(`unknown instruction hex: ${instruction.toString(16)}`);
     }
   }
+  static processInstructionE(instruction: number, ch8: Chip8) {
+    const secondByte = instruction & 0x00ff;
+
+    switch (secondByte) {
+      case 0x9e:
+        Cpu.skpEx9E(instruction, ch8);
+        break;
+      case 0xa1:
+        Cpu.sknpExA1(instruction, ch8);
+        break;
+      default:
+        console.warn(`instruction ${instruction} not implemented`);
+    }
+  }
   static processInstructionF(instruction: number, ch8: Chip8) {
     const secondByte = instruction & 0x00ff;
 
     switch (secondByte) {
+      case 0x07:
+        Cpu.ldFx07(instruction, ch8);
+        break;
+      case 0x0a:
+        Cpu.ldFx0A(instruction, ch8);
+        break;
+      case 0x15:
+        Cpu.ldFx15(instruction, ch8);
+        break;
+      case 0x19:
+        Cpu.ldFx18(instruction, ch8);
+        break;
       case 0x1e:
         Cpu.addFx1E(instruction, ch8);
+        break;
+      case 0x29:
+        Cpu.ldFx29(instruction, ch8);
         break;
       case 0x33:
         Cpu.ldFx33(instruction, ch8);
@@ -578,17 +608,74 @@ export class Cpu {
     }
   }
 
-  static skpEx9E(instruction: number) {}
+  static skpEx9E(instruction: number, ch8: Chip8) {
+    // TODO: test
+    // Skip next instruction if key with the value of Vx is pressed.
+    // Checks the keyboard, and if the key corresponding to the value of Vx is
+    // currently in he down position, Pc is increased by 2.
+    const x = (instruction & 0x0f00) >> 8;
 
-  static sknpExA1(instruction: number) {}
+    const vxValue = ch8.getV(x);
+    const keyDownObject = ch8.Keyboard.getKeyboardState();
+    if (keyDownObject[vxValue.toString(16)] === true) {
+      ch8.pc += 2;
+    }
+  }
 
-  static ldFx07(instruction: number) {}
+  static sknpExA1(instruction: number, ch8: Chip8) {
+    // TODO: test
+    // Skip next instruction if key with the value of Vx is not pressed.
+    // Checks the keyboard, and if the key corresponding to the value of Vx is
+    // currently in the up position, Pc is increased by 2.
+    const x = (instruction & 0x0f00) >> 8;
 
-  static ldFx0A(instruction: number) {}
+    const vxValue = ch8.getV(x);
+    const keyDownObject = ch8.Keyboard.getKeyboardState();
+    if (keyDownObject[vxValue.toString(16)] === false) {
+      ch8.pc += 2;
+    }
+  }
 
-  static ldFx15(instruction: number) {}
+  static ldFx07(instruction: number, ch8: Chip8) {
+    // TODO: test
+    // Set Vx = delay timer value.
+    // The value of DT is placed into Vx.
+    const x = (instruction & 0x0f00) >> 8;
 
-  static ldFx18(instruction: number) {}
+    ch8.setV(x, ch8.delayTimer);
+  }
+
+  static ldFx0A(instruction: number, ch8: Chip8) {
+    // TODO: test
+    // Wait for a key press, store the value of the Key in Vx.
+    // All execution stops until a key is pressed, then the value of that key
+    // is stored in Vx.
+
+    const x = (instruction & 0x0f00) >> 8;
+    document.addEventListener("keydown", (event) => {
+      ch8.setV(x, parseInt(event.key, 16));
+    });
+  }
+
+  static ldFx15(instruction: number, ch8: Chip8) {
+    // TODO: test
+    // Set delay timer = Vx.
+    // DT is set equal to the value of Vx.
+    const x = (instruction & 0x0f00) >> 8;
+
+    const vxValue = ch8.getV(x);
+    ch8.delayTimer = vxValue;
+  }
+
+  static ldFx18(instruction: number, ch8: Chip8) {
+    // TODO: test
+    // Set sound timer = Vx.
+    // ST is set equal to the value of Vx.
+
+    const x = (instruction & 0x0f00) >> 8;
+    const vxValue = ch8.getV(x);
+    ch8.soundTimer = vxValue;
+  }
 
   static addFx1E(instruction: number, ch8: Chip8) {
     // Set I = I + Vx
@@ -601,7 +688,18 @@ export class Cpu {
     ch8.i = iValue + vxValue;
   }
 
-  static ldFx29(instruction: number) {}
+  static ldFx29(instruction: number, ch8: Chip8) {
+    // TODO: test
+    // Set I = location of sprite for digit Vx.
+    // The value of I is set to the location for the hexadecimal sprite
+    // corresponding to the value of Vx.
+    const initialLocation = 0x50;
+
+    const x = (instruction & 0x0f00) >> 8;
+
+    const vxValue = ch8.getV(x);
+    ch8.i = initialLocation + 5 * vxValue;
+  }
 
   static ldFx33(instruction: number, ch8: Chip8) {
     // Store BCD representation of Vx in memory locations I, I+1, and I+2.
@@ -649,7 +747,5 @@ export class Cpu {
     }
   }
 
-  /**
-   * Super chip-48 Instructions
-   */
+  // Super chip-48 Instructions
 }

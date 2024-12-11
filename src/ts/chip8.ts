@@ -1,5 +1,6 @@
 import { Cpu } from "./cpu.js";
 import { Renderer } from "./renderer.js";
+import { Keyboard } from "./keyboard.js";
 
 export class Chip8 {
   // Static Methods ----------------------------------------------------------
@@ -64,8 +65,9 @@ export class Chip8 {
 
   skipAutoPc: boolean;
 
+  Keyboard: Keyboard;
   // Constructor ------------------------------------------------------------
-  constructor(displayObject: any) {
+  constructor(displayObject: any, keyboardObject: any) {
     // TODO: see runRendererObject method.
     // display object of class Renderer
     this.displayObject = displayObject;
@@ -98,6 +100,8 @@ export class Chip8 {
     this.setFonts();
 
     this.skipAutoPc = false;
+
+    this.Keyboard = keyboardObject;
   }
 
   // Getters and Setters -----------------------------------------------------
