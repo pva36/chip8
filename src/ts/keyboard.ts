@@ -63,8 +63,9 @@ export class Keyboard {
     document.addEventListener("keypress", (event) => {
       const keyName = Keyboard.keyTranslation(event.key);
       if (!(typeof keyName === "undefined")) {
-        // alert(`key ${keyName} pressed!`);
         this.keyboardDownState[keyName] = true;
+        // alert(`key ${keyName} pressed!`);
+        // console.dir(this.keyboardDownState);
       }
     });
     document.addEventListener("keyup", (event) => {

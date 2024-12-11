@@ -100,7 +100,7 @@ export class Cpu {
           break;
 
         case 0xe000:
-          console.error(`0xEnnn not implemented`);
+          Cpu.processInstructionE(instruction, ch8);
           break;
 
         case 0xf000:
