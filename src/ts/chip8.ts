@@ -62,6 +62,8 @@ export class Chip8 {
   // TODO: see runRendererObject method
   displayObject: Renderer;
 
+  skipAutoPc: boolean;
+
   // Constructor ------------------------------------------------------------
   constructor(displayObject: any) {
     // TODO: see runRendererObject method.
@@ -94,6 +96,8 @@ export class Chip8 {
     this.display = Array.from({ length: 32 }, () => Array(64).fill(0));
 
     this.setFonts();
+
+    this.skipAutoPc = false;
   }
 
   // Getters and Setters -----------------------------------------------------
@@ -157,15 +161,15 @@ export class Chip8 {
    * than 65,535 (0xffff), the final value is (`value` - 65,535) - 1.
    */
   set pc(value: number) {
-    if (value < 0) {
-      console.warn(
-        "A negative value has been assigned to the Program Counter!",
-      );
-    } else if (value > 0xffff) {
-      console.warn(
-        "A number greater than 65,535 has been assigned to the PROGRAM COUNTER",
-      );
-    }
+    // if (value < 0) {
+    //   console.warn(
+    //     "A negative value has been assigned to the Program Counter!",
+    //   );
+    // } else if (value > 0xffff) {
+    //   console.warn(
+    //     "A number greater than 65,535 has been assigned to the PROGRAM COUNTER",
+    //   );
+    // }
     this._pc[0] = value;
   }
 
@@ -175,7 +179,6 @@ export class Chip8 {
   }
   set sp(value: number) {
     // TODO: should a negative value in the stack pointer counter be allowed?
-    //
     if (value < 0) {
       console.warn("A negative value has been assigned to the Stack Pointer!");
     } else if (value > 0xffff) {
@@ -191,14 +194,15 @@ export class Chip8 {
     return this._stack[index];
   }
   setStack(index: number, value: number) {
-    if (index < 0 || index > 16) {
-      throw Error(
-        `Index of the STACK must be between 0 and 16. A ${index} was provided!`,
-      );
-    }
-    if (Chip8.check16bitRegInput(value, "STACK[${}]")) {
-      this._stack[index] = value;
-    }
+    // if (index < 0 || index > 16) {
+    //   throw Error(
+    //     `Index of the STACK must be between 0 and 16. A ${index} was provided!`,
+    //   );
+    // }
+    // if (Chip8.check16bitRegInput(value, "STACK[${}]")) {
+    //   this._stack[index] = value;
+    // }
+    this._stack[index] = value;
   }
 
   // Getter and setter for delayTimer

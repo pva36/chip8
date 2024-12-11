@@ -17,7 +17,11 @@ export class Cpu {
       instruction = instruction | lowByte;
 
       Cpu.processInstruction(instruction, ch8);
-      ch8.pc += 2; // increment after each operation
+      if (!ch8.skipAutoPc) {
+        ch8.pc += 2; // increment after each operation
+      }
+
+      ch8.skipAutoPc = false;
     });
   }
 
@@ -150,7 +154,6 @@ export class Cpu {
     }
   }
   static processInstruction8(instruction: number, ch8: Chip8) {
-    // TODO
     const fourthNibble = instruction & 0x000f;
 
     switch (fourthNibble) {
@@ -186,7 +189,6 @@ export class Cpu {
     }
   }
   static processInstructionF(instruction: number, ch8: Chip8) {
-    // TODO
     const secondByte = instruction & 0x00ff;
 
     switch (secondByte) {
@@ -214,9 +216,9 @@ export class Cpu {
    * Instructions ------------------------------------------------------------
    */
   static sys0nnn(instruction: number, ch8: Chip8): void {
-    // TODO: implement
     const address = 0x0fff & instruction;
     ch8.pc = address;
+    ch8.skipAutoPc = true;
   }
 
   static cls00E0(ch8: Chip8): void {
@@ -224,43 +226,42 @@ export class Cpu {
   }
 
   static ret00EE(ch8: Chip8): void {
-    // TODO: test not passed.
     // Return from a subroutine.
     // The interpreter sets the program counter to the address at the top of
     // the stack, then subtracts 1 from the stack pointer.
 
     // set pc to address at the top of the stack
     ch8.pc = ch8.getStack(ch8.sp);
+    // ch8.skipAutoPc = true;
+    // the previous instruction (commented) doesn't apply because we need the
+    // interpreter to return to the instruction and consider it the instruction
+    // of the current iteration, so the automatic increment of the program
+    // counter must occur in order to continue the normal execution of the
+    // program.
 
     // subtracts 1 from the stack pointer.
     ch8.sp -= 1;
-
-    // try {
-    //   ch8.sp -= 1;
-    // } catch {
-    //   console.error(
-    //     "Instruction tried to subtract from STACK POINTER with a negative value as a result",
-    //     "or tried to add to STACK POINTER with a value greater than 0xFF as a result",
-    //   );
-    // }
   }
 
   static jp1nnn(instruction: number, ch8: Chip8) {
-    // TODO: test not passed.
     // the interpreter sets the program counter to `nnn`
     let address = instruction & 0x0fff;
 
     ch8.pc = address;
+    ch8.skipAutoPc = true;
   }
 
   static call2nnn(instruction: number, ch8: Chip8) {
-    // TODO: test not passed.
     // Call subroutine at nnn
     // The interpreter increments the stack pointer, then puts the current PC
     // on the top of the stack. The PC is then set to nnn
-    const adress = instruction & 0x0fff;
-    ch8.setStack(++ch8.sp, ch8.pc);
-    ch8.pc = adress;
+
+    const address = instruction & 0x0fff;
+
+    ch8.sp++;
+    ch8.setStack(ch8.sp, ch8.pc);
+    ch8.pc = address;
+    ch8.skipAutoPc = true;
   }
 
   static se3xkk(instruction: number, ch8: Chip8) {
@@ -509,6 +510,7 @@ export class Cpu {
     const nnn = instruction & 0x0fff;
 
     ch8.pc = nnn + ch8.getV(0);
+    ch8.skipAutoPc = true;
   }
 
   static rndCxkk(instruction: number, ch8: Chip8) {
