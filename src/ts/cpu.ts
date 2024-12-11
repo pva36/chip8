@@ -476,9 +476,9 @@ export class Cpu {
 
     const vxValue = ch8.getV(x);
 
-    ch8.setV(0xf, (vxValue & 0b10000000) >> 7);
-
     ch8.setV(x, vxValue << 1);
+
+    ch8.setV(0xf, (vxValue & 0b10000000) >> 7);
   }
 
   static sne9xy0(instruction: number, ch8: Chip8) {
