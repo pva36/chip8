@@ -124,13 +124,13 @@ export class Chip8 {
     if (index < 0 || index > 0xf) {
       throw Error(`V[<<${index}>>] doesn't exist!`);
     }
-    if (value < 0) {
-      console.error(`value: ${value} is negative`);
-    }
-    if (value > 0xff) {
-      console.warn(`value: ${value} is greater than 255`);
-      // throw Error(`V[${index}] cannot hold values greater than 255 (0xFF)`);
-    }
+    // if (value < 0) {
+    //   console.error(`value: ${value} is negative`);
+    // }
+    // if (value > 0xff) {
+    //   console.warn(`value: ${value} is greater than 255`);
+    //   // throw Error(`V[${index}] cannot hold values greater than 255 (0xFF)`);
+    // }
     this._v[index] = value;
   }
 
@@ -145,13 +145,13 @@ export class Chip8 {
    * than 65,535 (0xffff), the final value is (`value` - 65,535) - 1.
    */
   set i(value: number) {
-    if (value < 0) {
-      console.warn("A negative value has been assigned to the I register!");
-    } else if (value > 0xffff) {
-      console.warn(
-        "A value greater than 65.535(0xFFFF) has been putted in the I register",
-      );
-    }
+    // if (value < 0) {
+    //   console.warn("A negative value has been assigned to the I register!");
+    // } else if (value > 0xffff) {
+    //   console.warn(
+    //     "A value greater than 65.535(0xFFFF) has been putted in the I register",
+    //   );
+    // }
     this._i[0] = value;
   }
 
@@ -183,13 +183,13 @@ export class Chip8 {
   }
   set sp(value: number) {
     // TODO: should a negative value in the stack pointer counter be allowed?
-    if (value < 0) {
-      console.warn("A negative value has been assigned to the Stack Pointer!");
-    } else if (value > 0xffff) {
-      console.warn(
-        "A number greater than 65,535 has been assigned to the Stack Pointer",
-      );
-    }
+    // if (value < 0) {
+    //   console.warn("A negative value has been assigned to the Stack Pointer!");
+    // } else if (value > 0xffff) {
+    //   console.warn(
+    //     "A number greater than 65,535 has been assigned to the Stack Pointer",
+    //   );
+    // }
     this._sp[0] = value;
   }
 
