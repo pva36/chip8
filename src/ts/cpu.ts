@@ -9,6 +9,36 @@ export class Cpu {
   static cpuRun(ch8: Chip8): void {
     ch8.pc = 0x200;
 
+    let lastTime = 0;
+    let interval = 1.67; // milliseconds
+    let frameCount = 0;
+
+    // function animate(timestamp: number) {
+    //   const deltaTime = timestamp - lastTime;
+    //   lastTime = timestamp;
+
+    //   if (deltaTime >= interval) {
+    //     frameCount++;
+    //     // set instruction:
+    //     let highByte = ch8.memory[ch8.pc];
+    //     let lowByte = ch8.memory[ch8.pc + 1];
+    //     let instruction = 0x00_00 | (highByte << 8);
+    //     instruction = instruction | lowByte;
+
+    //     Cpu.processInstruction(instruction, ch8);
+    //     if (!ch8.skipAutoPc) {
+    //       ch8.pc += 2; // increment after each operation
+    //     }
+    //     ch8.skipAutoPc = false;
+
+    //     // adjust interval for next frame
+    //     interval = 1.67 - (deltaTime % 1.67);
+    //   }
+
+    //   requestAnimationFrame(animate);
+    // }
+
+    // requestAnimationFrame(animate);
     setInterval(() => {
       // set instruction:
       let highByte = ch8.memory[ch8.pc];
@@ -30,7 +60,7 @@ export class Cpu {
    */
 
   static processInstruction(instruction: number, ch8: Chip8): void {
-    console.log(`executing instruction '${instruction.toString(16)}'`);
+    // console.log(`executing instruction '${instruction.toString(16)}'`);
 
     // check that instruction is one byte (I want to be very careful);
     if (instruction < 0 && instruction > 0xffff) {
@@ -200,7 +230,7 @@ export class Cpu {
         Cpu.sknpExA1(instruction, ch8);
         break;
       default:
-        console.warn(`instruction ${instruction} not implemented`);
+        console.warn(`Illegal instruction 0x${instruction.toString(16)}.`);
     }
   }
   static processInstructionF(instruction: number, ch8: Chip8) {
@@ -235,9 +265,7 @@ export class Cpu {
         Cpu.ldFx65(instruction, ch8);
         break;
       default:
-        console.warn(
-          `instruction 0x${instruction.toString(16)} not implemented.`,
-        );
+        console.warn(`illegal instruction 0x${instruction.toString(16)}.`);
         break;
     }
   }
@@ -650,11 +678,11 @@ export class Cpu {
     // Wait for a key press, store the value of the Key in Vx.
     // All execution stops until a key is pressed, then the value of that key
     // is stored in Vx.
-
-    const x = (instruction & 0x0f00) >> 8;
-    document.addEventListener("keydown", (event) => {
-      ch8.setV(x, parseInt(event.key, 16));
-    });
+    return;
+    // const x = (instruction & 0x0f00) >> 8;
+    // document.addEventListener("keydown", (event) => {
+    //   ch8.setV(x, parseInt(event.key, 16));
+    // });
   }
 
   static ldFx15(instruction: number, ch8: Chip8) {

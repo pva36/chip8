@@ -70,7 +70,7 @@ async function sendBinary(inputElement: HTMLInputElement | null) {
         chip8.fetchBinary(array);
       };
       reader.onerror = (event) => {
-        console.log("Error: ", event.type);
+        console.error("Error: ", event.type);
       };
       // pass binaryFile to the reader object
       reader.readAsArrayBuffer(binaryFile);
