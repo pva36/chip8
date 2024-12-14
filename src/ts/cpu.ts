@@ -9,36 +9,6 @@ export class Cpu {
   static cpuRun(ch8: Chip8): void {
     ch8.pc = 0x200;
 
-    let lastTime = 0;
-    let interval = 1.67; // milliseconds
-    let frameCount = 0;
-
-    // function animate(timestamp: number) {
-    //   const deltaTime = timestamp - lastTime;
-    //   lastTime = timestamp;
-
-    //   if (deltaTime >= interval) {
-    //     frameCount++;
-    //     // set instruction:
-    //     let highByte = ch8.memory[ch8.pc];
-    //     let lowByte = ch8.memory[ch8.pc + 1];
-    //     let instruction = 0x00_00 | (highByte << 8);
-    //     instruction = instruction | lowByte;
-
-    //     Cpu.processInstruction(instruction, ch8);
-    //     if (!ch8.skipAutoPc) {
-    //       ch8.pc += 2; // increment after each operation
-    //     }
-    //     ch8.skipAutoPc = false;
-
-    //     // adjust interval for next frame
-    //     interval = 1.67 - (deltaTime % 1.67);
-    //   }
-
-    //   requestAnimationFrame(animate);
-    // }
-
-    // requestAnimationFrame(animate);
     setInterval(() => {
       // set instruction:
       let highByte = ch8.memory[ch8.pc];
