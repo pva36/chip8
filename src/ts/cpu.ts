@@ -608,7 +608,6 @@ export class Cpu {
   }
 
   static skpEx9E(instruction: number, ch8: Chip8) {
-    // TODO: test
     // Skip next instruction if key with the value of Vx is pressed.
     // Checks the keyboard, and if the key corresponding to the value of Vx is
     // currently in he down position, Pc is increased by 2.
@@ -622,7 +621,6 @@ export class Cpu {
   }
 
   static sknpExA1(instruction: number, ch8: Chip8) {
-    // TODO: test
     // Skip next instruction if key with the value of Vx is not pressed.
     // Checks the keyboard, and if the key corresponding to the value of Vx is
     // currently in the up position, Pc is increased by 2.
