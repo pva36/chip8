@@ -261,7 +261,7 @@ export class Chip8 {
      * Run Cpu and Renderer
      */
     Cpu.cpuRun(this);
-    this.runRendererObject();
+    // this.runRendererObject();
   }
 
   // TODO: clean this code, so it doesn't assume a particular object, but a

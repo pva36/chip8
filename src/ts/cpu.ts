@@ -604,6 +604,7 @@ export class Cpu {
       }
       rowsCoord++; // next iteration of loop operate over next row on display
     }
+    ch8.displayObject.diplayRun(ch8.display);
   }
 
   static skpEx9E(instruction: number, ch8: Chip8) {

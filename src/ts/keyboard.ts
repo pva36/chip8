@@ -28,7 +28,7 @@ export class Keyboard {
       case "d":
         return "9";
       case "f":
-        return "10";
+        return "e";
       case "z":
         return "a";
       case "x":
