@@ -1,5 +1,6 @@
 // to avoid declaring an interface
 import { Chip8 } from "./chip8.js";
+import { Keyboard } from "./keyboard.js";
 
 export class Cpu {
   /**
@@ -22,6 +23,9 @@ export class Cpu {
       }
 
       ch8.skipAutoPc = false;
+      if (ch8.delayTimer > 0) {
+        ch8.delayTimer--;
+      }
     });
   }
 
@@ -643,15 +647,47 @@ export class Cpu {
   }
 
   static ldFx0A(instruction: number, ch8: Chip8) {
-    // TODO: test
+    // TODO: implement
     // Wait for a key press, store the value of the Key in Vx.
     // All execution stops until a key is pressed, then the value of that key
     // is stored in Vx.
-    return;
-    // const x = (instruction & 0x0f00) >> 8;
-    // document.addEventListener("keydown", (event) => {
-    //   ch8.setV(x, parseInt(event.key, 16));
-    // });
+
+    // ch8.Keyboard.insideFx0A = true;
+
+    const x = (instruction & 0x0f00) >> 8;
+
+    let keyName: string;
+
+    let done: boolean = false;
+
+    for (let key in ch8.Keyboard.keyboardDownState) {
+      if (ch8.Keyboard.keyboardDownState[key] === true) {
+        keyName = key;
+        ch8.setV(x, parseInt(key, 16));
+        done = true;
+        ch8.Keyboard.insideFx0A = false;
+        break;
+      }
+    }
+
+    // for (let i = 0xf; i < 0; i--) {
+    //   if (ch8.Keyboard.keyboardDownState[i.toString(16)] === true) {
+    //     keyName = i.toString(16);
+    //     ch8.setV(x, i);
+    //     done = true;
+    //     ch8.Keyboard.insideFx0A = false;
+    //     break;
+    //   }
+    // }
+
+    if (done === false) {
+      ch8.skipAutoPc = true;
+    } else {
+      ch8.skipAutoPc = false;
+      for (let key in ch8.Keyboard.keyboardDownState) {
+        ch8.Keyboard.keyboardDownState[key] = false;
+      }
+    }
   }
 
   static ldFx15(instruction: number, ch8: Chip8) {

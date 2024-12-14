@@ -3,6 +3,8 @@
 export class Keyboard {
   keyboardDownState: { [index: string]: boolean } = {};
 
+  insideFx0A = false;
+
   static keyTranslation(key: string): string | undefined {
     switch (key) {
       case "1":
@@ -64,14 +66,17 @@ export class Keyboard {
       const keyName = Keyboard.keyTranslation(event.key);
       if (!(typeof keyName === "undefined")) {
         this.keyboardDownState[keyName] = true;
-        // alert(`key ${keyName} pressed!`);
+        // console.log(`${event.key} down!`);
         // console.dir(this.keyboardDownState);
       }
     });
     document.addEventListener("keyup", (event) => {
       const keyName = Keyboard.keyTranslation(event.key);
       if (!(typeof keyName === "undefined")) {
-        this.keyboardDownState[keyName] = false;
+        if (!this.insideFx0A) {
+          this.keyboardDownState[keyName] = false;
+          // console.log(`${event.key} up!`);
+        }
       }
     });
   }
