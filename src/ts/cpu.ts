@@ -220,7 +220,7 @@ export class Cpu {
       case 0x15:
         Cpu.ldFx15(instruction, ch8);
         break;
-      case 0x19:
+      case 0x18:
         Cpu.ldFx18(instruction, ch8);
         break;
       case 0x1e:
