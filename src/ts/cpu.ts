@@ -563,7 +563,8 @@ export class Cpu {
   }
 
   static drwDxyn(instruction: number, ch8: Chip8) {
-    // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+    // Display n-byte sprite starting at memory location I at (Vx, Vy),
+    // set VF = collision.
 
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
@@ -592,6 +593,11 @@ export class Cpu {
       let mask: number = 0b1000_0000;
 
       for (let j = 8; j > 0; j--, bitOffset--, currentCol++, mask = mask >> 1) {
+        // manage wrapping around the vertical axis
+        if (currentRow >= 32) {
+          currentRow = 0;
+        }
+
         let displayPixelOldValue = ch8.display[currentRow][currentCol];
         ch8.display[currentRow][currentCol] ^= (byte & mask) >> bitOffset;
 
