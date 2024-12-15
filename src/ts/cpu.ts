@@ -10,7 +10,7 @@ export class Cpu {
   static cpuRun(ch8: Chip8): void {
     ch8.pc = 0x200;
 
-    setInterval(() => {
+    ch8.runningLoops[ch8.runningLoops.length] = setInterval(() => {
       // set instruction:
       let highByte = ch8.memory[ch8.pc];
       let lowByte = ch8.memory[ch8.pc + 1];

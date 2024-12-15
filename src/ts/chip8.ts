@@ -66,6 +66,9 @@ export class Chip8 {
   skipAutoPc: boolean;
 
   Keyboard: Keyboard;
+
+  runningLoops: any[] = [];
+
   // Constructor ------------------------------------------------------------
   constructor(displayObject: any, keyboardObject: any) {
     // TODO: see runRendererObject method.
@@ -235,8 +238,9 @@ export class Chip8 {
    * Reset the Chip8 object to an original state.
    */
   reset(): void {
-    // TODO: clean chip8 components.
     this.clearRegisters();
+
+    this.clearRunningLoops();
 
     this.clearDisplay();
     this.setFonts();
@@ -411,6 +415,12 @@ export class Chip8 {
     // clean Stack
     for (let i = this._stack.length - 1; i >= 0; i--) {
       this.setStack(i, 0);
+    }
+  }
+
+  clearRunningLoops(): void {
+    for (const runningLoop of this.runningLoops) {
+      clearInterval(runningLoop);
     }
   }
 
