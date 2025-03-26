@@ -1,10 +1,10 @@
+import { Chip8 as IChip8 } from "./interfaces/chip8";
 import { Cpu } from "./cpu.js";
-import { Renderer } from "./renderer.js";
+import { Display } from "./display.js";
 import { Keyboard } from "./keyboard.js";
 
-export class Chip8 {
+export class Chip8 implements IChip8 {
   // Static Methods ----------------------------------------------------------
-
   /**
    * If `input` is negative or greater than 0xffff throw an error, else return
    * true.
@@ -61,13 +61,15 @@ export class Chip8 {
   display: number[][];
 
   // TODO: see runRendererObject method
-  displayObject: Renderer;
+  displayObject: Display;
 
   skipAutoPc: boolean;
 
   Keyboard: Keyboard;
 
   runningLoops: any[] = [];
+
+  romContainer: Uint8Array | null;
 
   // Constructor ------------------------------------------------------------
   constructor(displayObject: any, keyboardObject: any) {
@@ -105,6 +107,54 @@ export class Chip8 {
     this.skipAutoPc = false;
 
     this.Keyboard = keyboardObject;
+
+    this.romContainer = null;
+  }
+
+  // interface methods
+  clear(): void {
+    this.clearRegisters();
+
+    this.clearRunningLoops();
+
+    this.clearDisplay();
+    this.setFonts();
+  }
+
+  loadRom(arrayBin: Uint8Array): void {
+    // load program into the Chip8
+    this.romContainer = arrayBin;
+  }
+
+  run(): void {
+    // clear Chip8 object
+    this.clear();
+
+    // ensures that this.romContainer is not null, else, throw an error
+    if (this.romContainer == null) {
+      throw new Error("No Rom loaded!");
+    }
+
+    // load rom into memory, starting from location 0x200.
+    let memIndex = 0x200; // TODO constant that gives more info about what is this
+    for (const byte of this.romContainer as Uint8Array) {
+      this.memory[memIndex++] = byte;
+    }
+
+    // run cpu
+    Cpu.cpuRun(this);
+  }
+
+  pause(): void {
+    // TODO
+  }
+
+  stop(): void {
+    // TODO
+  }
+
+  resume(): void {
+    // TODO
   }
 
   // Getters and Setters -----------------------------------------------------
@@ -234,40 +284,6 @@ export class Chip8 {
 
   // Interaction with other elements of the system
 
-  /**
-   * Reset the Chip8 object to an original state.
-   */
-  reset(): void {
-    this.clearRegisters();
-
-    this.clearRunningLoops();
-
-    this.clearDisplay();
-    this.setFonts();
-  }
-
-  /**
-   * Load `arrayBin` into chip8's memory and run chip8.
-   */
-  fetchBinary(arrayBin: Uint8Array): void {
-    /**
-     * prepare chip8 for execution:
-     */
-    this.reset();
-
-    // load program into memory, starting from location 0x200;
-    let memIndex = 0x200;
-    for (const byte of arrayBin) {
-      this.memory[memIndex++] = byte;
-    }
-
-    /**
-     * Run Cpu and Renderer
-     */
-    Cpu.cpuRun(this);
-    // this.runRendererObject();
-  }
-
   // TODO: clean this code, so it doesn't assume a particular object, but a
   // general function that receives the display at each interval.
   /**
@@ -275,7 +291,7 @@ export class Chip8 {
    */
   runRendererObject(): void {
     setInterval(() => {
-      this.displayObject.diplayRun(this.display);
+      this.displayObject.render(this.display);
     });
   }
 
@@ -388,7 +404,7 @@ export class Chip8 {
    * Cleans memory, V registers, I register, delay and sound timers, program
    * counter, stack pointer and stack.
    */
-  clearRegisters(): void {
+  private clearRegisters(): void {
     // clean Memory (8-bit)
     for (let i = this.memory.length - 1; i >= 0; i--) {
       this.memory[i] = 0;
@@ -418,7 +434,7 @@ export class Chip8 {
     }
   }
 
-  clearRunningLoops(): void {
+  private clearRunningLoops(): void {
     for (const runningLoop of this.runningLoops) {
       clearInterval(runningLoop);
     }

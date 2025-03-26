@@ -1,15 +1,17 @@
 import { Chip8 } from "./chip8.js";
-import { Renderer } from "./renderer.js";
+import { Display } from "./display.js";
 import { Keyboard } from "./keyboard.js";
 
 const canvas: HTMLCanvasElement = document.querySelector("canvas#display")!;
-// const chip8 = new Chip8();
 const reader = new FileReader();
-const renderer = new Renderer(10, canvas, 64, 32);
+const renderer = new Display(10, canvas, 64, 32);
 const keyboard = new Keyboard(document);
 const chip8 = new Chip8(renderer, keyboard);
-const romInputButton = document.querySelector("button[id='runGame']")!;
+const romInput = document.getElementById("romInput")!;
+const runButton = document.querySelector("button[id='runGame']")!;
 const submitInstructionForm = document.querySelector("form#runInstruction");
+const backgroundColorInput = document.getElementById("backgroundColor")!;
+const foregroundColorInput = document.getElementById("foregroundColor")!;
 
 // chip8.sendInstructionToCpu(0x0123);
 // chip8.sendInstructionToCpu(0x6120);
@@ -20,8 +22,28 @@ const submitInstructionForm = document.querySelector("form#runInstruction");
 /**
  * Main
  */
-function main() {
-  romInputButton.addEventListener("click", romHandler);
+function main(): void {
+  runButton.addEventListener("click", () => {
+    try {
+      chip8.run();
+    } catch (error) {
+      alert(error);
+    }
+  });
+
+  backgroundColorInput.oninput = function (event) {
+    let colorInputElement = event.target as HTMLInputElement;
+    renderer.setBackgroundColor(colorInputElement.value);
+  };
+
+  foregroundColorInput.oninput = function (event) {
+    let colorInputElement = event.target as HTMLInputElement;
+    renderer.setForegroundColor(colorInputElement.value);
+  };
+
+  romInput.onchange = function (event) {
+    romHandler(event.target as HTMLInputElement | null);
+  };
 
   // event listener for submit instruction
   submitInstructionForm?.addEventListener("submit", (e) => {
@@ -43,8 +65,7 @@ function main() {
  * Functions -----------------------------------------------------------------
  */
 
-async function romHandler() {
-  const romInput = document.querySelector("input[type='file']");
+async function romHandler(romInput: HTMLInputElement | null) {
   sendBinary(romInput as HTMLInputElement | null);
 }
 
@@ -67,7 +88,7 @@ async function sendBinary(inputElement: HTMLInputElement | null) {
         // console.log([].map.call(array, (x: number) => x.toString(16)));
 
         // pass the array to the chip8 object
-        chip8.fetchBinary(array);
+        chip8.loadRom(array);
       };
       reader.onerror = (event) => {
         console.error("Error: ", event.type);
@@ -77,9 +98,5 @@ async function sendBinary(inputElement: HTMLInputElement | null) {
     }
   }
 }
-
-// function checkSmartphone(): bool {
-//
-// }
 
 main();

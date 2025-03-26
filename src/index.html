@@ -13,6 +13,15 @@
     <link href="css/style.css" rel="stylesheet" />
   </head>
   <body>
+    <span>Choose Display's Colors:</span>
+    <div id="colorpicker">
+      <input type="color" id="backgroundColor" name="head" value="#ffffff" />
+      <label for="head">Background</label>
+    </div>
+    <div id="colorpicker">
+      <input type="color" id="foregroundColor" name="body" value="#000000" />
+      <label for="body">Foreground</label>
+    </div>
     <div class="container-fluid px-4 py-4 text-center mh-90">
       <div class="container">
         <canvas id="display"></canvas>
@@ -62,7 +71,7 @@
         <input class="form-control" type="file" id="romInput" />
       </div>
       <button type="button" class="btn btn-secondary" id="runGame">
-        Run Game
+        Run/Reset
       </button>
     </div>
     <script
