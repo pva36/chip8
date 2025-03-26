@@ -2,8 +2,12 @@ import { Chip8 as IChip8 } from "./interfaces/chip8";
 import { Cpu } from "./cpu.js";
 import { Display } from "./display.js";
 import { Keyboard } from "./keyboard.js";
-import { UInt8Register } from "./register.js";
-import { UInt16Register } from "./register.js";
+import {
+  UInt8Register,
+  UInt16Register,
+  VRegisters,
+  Stack,
+} from "./register.js";
 
 export class Chip8 implements IChip8 {
   memory: Uint8Array; // Memory
@@ -11,11 +15,8 @@ export class Chip8 implements IChip8 {
   delayTimer: UInt8Register; // Delay Timer
   soundTimer: UInt8Register; // Sound Timer
   pc: UInt16Register;
-
-  private _v: Uint8Array = new Uint8Array(0x10); // Vx Registers
-
-  private _sp: Uint8Array; // Stack Pointer
-  private _stack: Uint16Array; // Stack
+  v_registers: VRegisters; // V registers
+  stack: Stack;
 
   displayDataArray: number[][]; // Internal Display Data
 
@@ -37,13 +38,9 @@ export class Chip8 implements IChip8 {
     this.delayTimer = new UInt8Register(0);
     this.soundTimer = new UInt8Register(0);
     this.pc = new UInt16Register(0);
+    this.v_registers = new VRegisters();
+    this.stack = new Stack();
 
-    this._v;
-
-    this._sp = new Uint8Array(1);
-    this._stack = new Uint16Array(0x10);
-
-    // Display (64x32 pixels) rows: 32, cols: 64.
     this.displayDataArray = Array.from({ length: 32 }, () => Array(64).fill(0));
 
     this.setFonts();
@@ -61,7 +58,8 @@ export class Chip8 implements IChip8 {
 
     this.clearRunningLoops();
 
-    this.clearDisplay();
+    this.clearDisplayData();
+
     this.setFonts();
   }
 
@@ -101,77 +99,14 @@ export class Chip8 implements IChip8 {
     // TODO
   }
 
-  // Getters and Setters -----------------------------------------------------
-
-  // Vx Registers
-  // TODO: clean check logic
-  getV(index: number) {
-    if (index < 0 || index > 0xf) {
-      throw Error(`V[<<${index}>>] doesn't exist!`);
-    } else {
-      return this._v[index];
-    }
-  }
-
-  /**
-   * Set `value` as the value of the V(`index`)  register. If `value` is greater
-   * than 255 (0xff), the final value is (`value` - 255) - 1.
-   */
-  setV(index: number, value: number) {
-    if (index < 0 || index > 0xf) {
-      throw Error(`V[<<${index}>>] doesn't exist!`);
-    }
-    // if (value < 0) {
-    //   console.error(`value: ${value} is negative`);
-    // }
-    // if (value > 0xff) {
-    //   console.warn(`value: ${value} is greater than 255`);
-    //   // throw Error(`V[${index}] cannot hold values greater than 255 (0xFF)`);
-    // }
-    this._v[index] = value;
-  }
-
-  // Getter and setter for Stack Pointer
-  get sp() {
-    return this._sp[0];
-  }
-  set sp(value: number) {
-    // TODO: should a negative value in the stack pointer counter be allowed?
-    // if (value < 0) {
-    //   console.warn("A negative value has been assigned to the Stack Pointer!");
-    // } else if (value > 0xffff) {
-    //   console.warn(
-    //     "A number greater than 65,535 has been assigned to the Stack Pointer",
-    //   );
-    // }
-    this._sp[0] = value;
-  }
-
-  // Getter and setter for Stack
-  getStack(index: number) {
-    return this._stack[index];
-  }
-  setStack(index: number, value: number) {
-    // if (index < 0 || index > 16) {
-    //   throw Error(
-    //     `Index of the STACK must be between 0 and 16. A ${index} was provided!`,
-    //   );
-    // }
-    // if (Chip8.check16bitRegInput(value, "STACK[${}]")) {
-    //   this._stack[index] = value;
-    // }
-    this._stack[index] = value;
-  }
-
-  // Interaction with other elements of the system
-  /**
-   * Run an 'asynchronous infinite loop' that executes the Renderer object.
-   */
-  runRendererObject(): void {
-    setInterval(() => {
-      this.displayObject.render(this.displayDataArray);
-    });
-  }
+  // /**
+  //  * Run an 'asynchronous infinite loop' that executes the Renderer object.
+  //  */
+  // runRendererObject(): void {
+  //   setInterval(() => {
+  //     this.displayObject.render(this.displayDataArray);
+  //   });
+  // }
 
   /**
    * Sends `instruction` to be processed by the Chip8's cpu.
@@ -183,7 +118,7 @@ export class Chip8 implements IChip8 {
   /**
    * Clear Chip8's internal display data.
    */
-  clearDisplay(): void {
+  clearDisplayData(): void {
     this.displayDataArray = Array.from({ length: 32 }, () => Array(64).fill(0));
   }
 
@@ -289,8 +224,8 @@ export class Chip8 implements IChip8 {
     }
 
     // clean Vx registers (8-bit)
-    for (let i = this._v.length - 1; i >= 0; i--) {
-      this.setV(i, 0);
+    for (let i = this.v_registers.length - 1; i >= 0; i--) {
+      this.v_registers.setV(i, 0);
     }
 
     // clean I register (16-bit)
@@ -304,11 +239,11 @@ export class Chip8 implements IChip8 {
     this.pc.value = 0;
 
     // clean Stack Pointer (8-bit)
-    this.sp = 0;
+    this.stack.pointer = 0;
 
     // clean Stack
-    for (let i = this._stack.length - 1; i >= 0; i--) {
-      this.setStack(i, 0);
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      this.stack.setStack(i, 0);
     }
   }
 

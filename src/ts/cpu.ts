@@ -257,7 +257,7 @@ export class Cpu {
   }
 
   static cls00E0(ch8: Chip8): void {
-    ch8.clearDisplay();
+    ch8.clearDisplayData();
   }
 
   static ret00EE(ch8: Chip8): void {
@@ -266,7 +266,7 @@ export class Cpu {
     // the stack, then subtracts 1 from the stack pointer.
 
     // set pc to address at the top of the stack
-    ch8.pc.value = ch8.getStack(ch8.sp);
+    ch8.pc.value = ch8.stack.getStack(ch8.stack.pointer);
     // ch8.skipAutoPc = true;
     // the previous instruction (commented) doesn't apply because we need the
     // interpreter to return to the instruction and consider it the instruction
@@ -275,7 +275,7 @@ export class Cpu {
     // program.
 
     // subtracts 1 from the stack pointer.
-    ch8.sp -= 1;
+    ch8.stack.pointer -= 1;
   }
 
   static jp1nnn(instruction: number, ch8: Chip8) {
@@ -293,8 +293,8 @@ export class Cpu {
 
     const address = instruction & 0x0fff;
 
-    ch8.sp++;
-    ch8.setStack(ch8.sp, ch8.pc.value);
+    ch8.stack.pointer++;
+    ch8.stack.setStack(ch8.stack.pointer, ch8.pc.value);
     ch8.pc.value = address;
     ch8.skipAutoPc = true;
   }
@@ -306,7 +306,7 @@ export class Cpu {
 
     const kk = instruction & 0x00ff;
     const x = (instruction & 0x0f00) >> 8;
-    const vx = ch8.getV(x);
+    const vx = ch8.v_registers.getV(x);
 
     if (vx === kk) {
       ch8.pc.value += 2;
@@ -321,7 +321,7 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const kk = instruction & 0x00ff;
 
-    if (ch8.getV(x) !== kk) {
+    if (ch8.v_registers.getV(x) !== kk) {
       ch8.pc.value += 2;
     }
   }
@@ -333,7 +333,7 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    if (ch8.getV(x) === ch8.getV(y)) {
+    if (ch8.v_registers.getV(x) === ch8.v_registers.getV(y)) {
       ch8.pc.value += 2;
     }
   }
@@ -345,7 +345,7 @@ export class Cpu {
     const value = instruction & 0x00ff;
     const index = (instruction & 0x0f00) >> 8;
 
-    ch8.setV(index, value);
+    ch8.v_registers.setV(index, value);
   }
 
   static add7xkk(instruction: number, ch8: Chip8) {
@@ -354,8 +354,8 @@ export class Cpu {
     const value = instruction & 0x00ff;
     const index = (instruction & 0x0f00) >> 8;
 
-    const currentValue = ch8.getV(index);
-    ch8.setV(index, value + currentValue);
+    const currentValue = ch8.v_registers.getV(index);
+    ch8.v_registers.setV(index, value + currentValue);
   }
 
   static ld8xy0(instruction: number, ch8: Chip8) {
@@ -365,8 +365,8 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    const value = ch8.getV(y);
-    ch8.setV(x, value);
+    const value = ch8.v_registers.getV(y);
+    ch8.v_registers.setV(x, value);
   }
 
   static or8xy1(instruction: number, ch8: Chip8) {
@@ -379,11 +379,11 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    const vxValue = ch8.getV(x);
-    const vyValue = ch8.getV(y);
+    const vxValue = ch8.v_registers.getV(x);
+    const vyValue = ch8.v_registers.getV(y);
 
     const finalValue = vxValue | vyValue;
-    ch8.setV(x, finalValue);
+    ch8.v_registers.setV(x, finalValue);
   }
 
   static and8xy2(instruction: number, ch8: Chip8) {
@@ -396,11 +396,11 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    const vxValue = ch8.getV(x);
-    const vyValue = ch8.getV(y);
+    const vxValue = ch8.v_registers.getV(x);
+    const vyValue = ch8.v_registers.getV(y);
 
     const finalValue = vxValue & vyValue;
-    ch8.setV(x, finalValue);
+    ch8.v_registers.setV(x, finalValue);
   }
 
   static xor8xy3(instruction: number, ch8: Chip8) {
@@ -413,11 +413,11 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    const vxValue = ch8.getV(x);
-    const vyValue = ch8.getV(y);
+    const vxValue = ch8.v_registers.getV(x);
+    const vyValue = ch8.v_registers.getV(y);
 
     const finalValue = vxValue ^ vyValue;
-    ch8.setV(x, finalValue);
+    ch8.v_registers.setV(x, finalValue);
   }
 
   static add8xy4(instruction: number, ch8: Chip8) {
@@ -429,17 +429,17 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    const vxValue = ch8.getV(x);
-    const vyValue = ch8.getV(y);
+    const vxValue = ch8.v_registers.getV(x);
+    const vyValue = ch8.v_registers.getV(y);
 
     const sum = vxValue + vyValue;
 
     if (sum > 0xff) {
-      ch8.setV(x, sum & 0xff);
-      ch8.setV(0xf, 1);
+      ch8.v_registers.setV(x, sum & 0xff);
+      ch8.v_registers.setV(0xf, 1);
     } else {
-      ch8.setV(x, sum);
-      ch8.setV(0xf, 0);
+      ch8.v_registers.setV(x, sum);
+      ch8.v_registers.setV(0xf, 0);
     }
   }
 
@@ -451,16 +451,16 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    const vxValue = ch8.getV(x);
-    const vyValue = ch8.getV(y);
+    const vxValue = ch8.v_registers.getV(x);
+    const vyValue = ch8.v_registers.getV(y);
 
-    ch8.setV(x, vxValue - vyValue);
+    ch8.v_registers.setV(x, vxValue - vyValue);
 
     // The flag's test is passed only with '>='
     if (vxValue >= vyValue) {
-      ch8.setV(0xf, 1);
+      ch8.v_registers.setV(0xf, 1);
     } else {
-      ch8.setV(0xf, 0);
+      ch8.v_registers.setV(0xf, 0);
     }
   }
 
@@ -472,13 +472,13 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     // const y = (instruction & 0x00f0) >> 4;
 
-    const vxValue = ch8.getV(x);
-    // const vyValue = ch8.getV(y);
+    const vxValue = ch8.v_registers.getV(x);
+    // const vyValue = ch8.v_registers.getV(y);
 
     const leastVxBit = vxValue & 0b1;
 
-    ch8.setV(x, vxValue >> 1);
-    ch8.setV(0xf, leastVxBit);
+    ch8.v_registers.setV(x, vxValue >> 1);
+    ch8.v_registers.setV(0xf, leastVxBit);
   }
 
   static subn8xy7(instruction: number, ch8: Chip8) {
@@ -489,16 +489,16 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    const vxValue = ch8.getV(x);
-    const vyValue = ch8.getV(y);
+    const vxValue = ch8.v_registers.getV(x);
+    const vyValue = ch8.v_registers.getV(y);
 
-    ch8.setV(x, vyValue - vxValue);
+    ch8.v_registers.setV(x, vyValue - vxValue);
 
     // The flag's test is passed only with '>='
     if (vyValue >= vxValue) {
-      ch8.setV(0xf, 1);
+      ch8.v_registers.setV(0xf, 1);
     } else {
-      ch8.setV(0xf, 0);
+      ch8.v_registers.setV(0xf, 0);
     }
   }
 
@@ -509,11 +509,11 @@ export class Cpu {
 
     const x = (instruction & 0x0f00) >> 8;
 
-    const vxValue = ch8.getV(x);
+    const vxValue = ch8.v_registers.getV(x);
 
-    ch8.setV(x, vxValue << 1);
+    ch8.v_registers.setV(x, vxValue << 1);
 
-    ch8.setV(0xf, (vxValue & 0b10000000) >> 7);
+    ch8.v_registers.setV(0xf, (vxValue & 0b10000000) >> 7);
   }
 
   static sne9xy0(instruction: number, ch8: Chip8) {
@@ -524,8 +524,8 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
     const y = (instruction & 0x00f0) >> 4;
 
-    const vxValue = ch8.getV(x);
-    const vyValue = ch8.getV(y);
+    const vxValue = ch8.v_registers.getV(x);
+    const vyValue = ch8.v_registers.getV(y);
 
     if (!(vxValue === vyValue)) {
       ch8.pc.value += 2;
@@ -545,7 +545,7 @@ export class Cpu {
     // The program counter is set to nnn plus the value of V0;
     const nnn = instruction & 0x0fff;
 
-    ch8.pc.value = nnn + ch8.getV(0);
+    ch8.pc.value = nnn + ch8.v_registers.getV(0);
     ch8.skipAutoPc = true;
   }
 
@@ -562,7 +562,7 @@ export class Cpu {
     const MAX = 256;
     const randomByte = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
 
-    ch8.setV(x, kk & randomByte);
+    ch8.v_registers.setV(x, kk & randomByte);
   }
 
   static drwDxyn(instruction: number, ch8: Chip8) {
@@ -574,8 +574,8 @@ export class Cpu {
     const n = instruction & 0x000f;
 
     // get Vx and Vy
-    const colsCoord = ch8.getV(x);
-    let rowsCoord = ch8.getV(y);
+    const colsCoord = ch8.v_registers.getV(x);
+    let rowsCoord = ch8.v_registers.getV(y);
 
     // fill array with sprite's data
     let spriteArray: number[] = [];
@@ -585,7 +585,7 @@ export class Cpu {
     }
 
     // VF
-    ch8.setV(0xf, 0);
+    ch8.v_registers.setV(0xf, 0);
     let vFalreadyOn = false;
 
     // draw into display
@@ -612,7 +612,7 @@ export class Cpu {
             displayPixelOldValue !==
               ch8.displayDataArray[currentRow][currentCol]
           ) {
-            ch8.setV(0xf, 1);
+            ch8.v_registers.setV(0xf, 1);
             vFalreadyOn = true;
           }
         }
@@ -628,7 +628,7 @@ export class Cpu {
     // currently in he down position, Pc is increased by 2.
     const x = (instruction & 0x0f00) >> 8;
 
-    const vxValue = ch8.getV(x);
+    const vxValue = ch8.v_registers.getV(x);
     const keyDownObject = ch8.Keyboard.getKeyboardState();
     if (keyDownObject[vxValue.toString(16)] === true) {
       ch8.pc.value += 2;
@@ -641,7 +641,7 @@ export class Cpu {
     // currently in the up position, Pc is increased by 2.
     const x = (instruction & 0x0f00) >> 8;
 
-    const vxValue = ch8.getV(x);
+    const vxValue = ch8.v_registers.getV(x);
     const keyDownObject = ch8.Keyboard.getKeyboardState();
     if (keyDownObject[vxValue.toString(16)] === false) {
       ch8.pc.value += 2;
@@ -654,7 +654,7 @@ export class Cpu {
     // The value of DT is placed into Vx.
     const x = (instruction & 0x0f00) >> 8;
 
-    ch8.setV(x, ch8.delayTimer.value);
+    ch8.v_registers.setV(x, ch8.delayTimer.value);
   }
 
   static ldFx0A(instruction: number, ch8: Chip8) {
@@ -674,7 +674,7 @@ export class Cpu {
     for (let key in ch8.Keyboard.keyboardDownState) {
       if (ch8.Keyboard.keyboardDownState[key] === true) {
         keyName = key;
-        ch8.setV(x, parseInt(key, 16));
+        ch8.v_registers.setV(x, parseInt(key, 16));
         done = true;
         ch8.Keyboard.insideFx0A = false;
         break;
@@ -684,7 +684,7 @@ export class Cpu {
     // for (let i = 0xf; i < 0; i--) {
     //   if (ch8.Keyboard.keyboardDownState[i.toString(16)] === true) {
     //     keyName = i.toString(16);
-    //     ch8.setV(x, i);
+    //     ch8.v_registers.setV(x, i);
     //     done = true;
     //     ch8.Keyboard.insideFx0A = false;
     //     break;
@@ -707,7 +707,7 @@ export class Cpu {
     // DT is set equal to the value of Vx.
     const x = (instruction & 0x0f00) >> 8;
 
-    const vxValue = ch8.getV(x);
+    const vxValue = ch8.v_registers.getV(x);
     ch8.delayTimer.value = vxValue;
   }
 
@@ -717,7 +717,7 @@ export class Cpu {
     // ST is set equal to the value of Vx.
 
     const x = (instruction & 0x0f00) >> 8;
-    const vxValue = ch8.getV(x);
+    const vxValue = ch8.v_registers.getV(x);
     ch8.soundTimer.value = vxValue;
   }
 
@@ -727,7 +727,7 @@ export class Cpu {
 
     const x = (instruction & 0x0f00) >> 8;
     const iValue = ch8.i_register.value;
-    const vxValue = ch8.getV(x);
+    const vxValue = ch8.v_registers.getV(x);
 
     ch8.i_register.value = iValue + vxValue;
   }
@@ -741,7 +741,7 @@ export class Cpu {
 
     const x = (instruction & 0x0f00) >> 8;
 
-    const vxValue = ch8.getV(x);
+    const vxValue = ch8.v_registers.getV(x);
     ch8.i_register.value = initialLocation + 5 * vxValue;
   }
 
@@ -753,7 +753,7 @@ export class Cpu {
 
     const x = (instruction & 0x0f00) >> 8;
 
-    const vxValue = ch8.getV(x);
+    const vxValue = ch8.v_registers.getV(x);
 
     let currentVxValue = vxValue;
 
@@ -773,7 +773,7 @@ export class Cpu {
     let address = ch8.i_register.value;
 
     for (let i = 0; i <= x; i++) {
-      ch8.memory[address++] = ch8.getV(i);
+      ch8.memory[address++] = ch8.v_registers.getV(i);
     }
   }
 
@@ -787,7 +787,7 @@ export class Cpu {
     let address = ch8.i_register.value;
 
     for (let i = 0; i <= x; i++) {
-      ch8.setV(i, ch8.memory[address++]);
+      ch8.v_registers.setV(i, ch8.memory[address++]);
     }
   }
 
