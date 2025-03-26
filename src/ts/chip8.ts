@@ -2,66 +2,24 @@ import { Chip8 as IChip8 } from "./interfaces/chip8";
 import { Cpu } from "./cpu.js";
 import { Display } from "./display.js";
 import { Keyboard } from "./keyboard.js";
+import { UInt8Register } from "./register.js";
+import { UInt16Register } from "./register.js";
 
 export class Chip8 implements IChip8 {
-  // Static Methods ----------------------------------------------------------
-  /**
-   * If `input` is negative or greater than 0xffff throw an error, else return
-   * true.
-   */
-  static check16bitRegInput(input: number, registerName: string): boolean {
-    if (input < 0) {
-      throw Error(`${registerName} cannot hold negative values!`);
-    } else if (input > 0xffff) {
-      throw Error(`${registerName} cannot hold values greater than 0xffff!`);
-    }
-    return true;
-  }
+  memory: Uint8Array; // Memory
+  i_register: UInt16Register; // I register
+  delayTimer: UInt8Register; // Delay Timer
+  soundTimer: UInt8Register; // Sound Timer
+  pc: UInt16Register;
 
-  /**
-   * If `input` is negative or greater than 0xff throw an error, else return
-   * true.
-   */
-  static check8bitRegInput(input: number, registerName: string): boolean {
-    if (input < 0) {
-      throw Error(`${registerName} cannot hold negative values!`);
-    } else if (input > 0xff) {
-      throw Error(`${registerName} cannot hold values greater than 0xff!`);
-    }
-    return true;
-  }
+  private _v: Uint8Array = new Uint8Array(0x10); // Vx Registers
 
-  // Variable declarations ---------------------------------------------------
+  private _sp: Uint8Array; // Stack Pointer
+  private _stack: Uint16Array; // Stack
 
-  // Memory
-  memory: Uint8Array;
+  displayDataArray: number[][]; // Internal Display Data
 
-  // Vx registers
-  private _v: Uint8Array = new Uint8Array(0x10);
-
-  // I register
-  private _i: Uint16Array;
-
-  // Delay Timer
-  private _delayTimer: Uint8Array;
-
-  // Sound Timer
-  private _soundTimer: Uint8Array;
-
-  // Program Counter
-  private _pc: Uint16Array;
-
-  // Stack Pointer
-  private _sp: Uint8Array;
-
-  // Stack
-  private _stack: Uint16Array;
-
-  // Display
-  display: number[][];
-
-  // TODO: see runRendererObject method
-  displayObject: Display;
+  displayObject: Display; // Display object (of class Display)
 
   skipAutoPc: boolean;
 
@@ -73,34 +31,20 @@ export class Chip8 implements IChip8 {
 
   // Constructor ------------------------------------------------------------
   constructor(displayObject: any, keyboardObject: any) {
-    // TODO: see runRendererObject method.
-    // display object of class Renderer
     this.displayObject = displayObject;
-
-    // Memory (8-bit)
     this.memory = new Uint8Array(0x1000);
+    this.i_register = new UInt16Register(0);
+    this.delayTimer = new UInt8Register(0);
+    this.soundTimer = new UInt8Register(0);
+    this.pc = new UInt16Register(0);
 
-    // Vx registers (8-bit)
     this._v;
 
-    // I register (16-bit)
-    this._i = new Uint16Array(1);
-
-    // delay and sound timers (8-bit registers)
-    this._delayTimer = new Uint8Array(1);
-    this._soundTimer = new Uint8Array(1);
-
-    // Program Counter (16-bit)
-    this._pc = new Uint16Array(1);
-
-    // Stack Pointer (8-bit)
     this._sp = new Uint8Array(1);
-
-    // Stack (array of 16 16-bit values)
     this._stack = new Uint16Array(0x10);
 
     // Display (64x32 pixels) rows: 32, cols: 64.
-    this.display = Array.from({ length: 32 }, () => Array(64).fill(0));
+    this.displayDataArray = Array.from({ length: 32 }, () => Array(64).fill(0));
 
     this.setFonts();
 
@@ -187,49 +131,6 @@ export class Chip8 implements IChip8 {
     this._v[index] = value;
   }
 
-  // Getter and setter for I register.
-
-  get i() {
-    return this._i[0];
-  }
-
-  /**
-   * Set `value` as the value of the I register. If `value` is greater
-   * than 65,535 (0xffff), the final value is (`value` - 65,535) - 1.
-   */
-  set i(value: number) {
-    // if (value < 0) {
-    //   console.warn("A negative value has been assigned to the I register!");
-    // } else if (value > 0xffff) {
-    //   console.warn(
-    //     "A value greater than 65.535(0xFFFF) has been putted in the I register",
-    //   );
-    // }
-    this._i[0] = value;
-  }
-
-  // Getter and setter for Program Counter
-  get pc() {
-    return this._pc[0];
-  }
-
-  /**
-   * Set `value` as the value of the Program Counter. If `value` is greater
-   * than 65,535 (0xffff), the final value is (`value` - 65,535) - 1.
-   */
-  set pc(value: number) {
-    // if (value < 0) {
-    //   console.warn(
-    //     "A negative value has been assigned to the Program Counter!",
-    //   );
-    // } else if (value > 0xffff) {
-    //   console.warn(
-    //     "A number greater than 65,535 has been assigned to the PROGRAM COUNTER",
-    //   );
-    // }
-    this._pc[0] = value;
-  }
-
   // Getter and setter for Stack Pointer
   get sp() {
     return this._sp[0];
@@ -262,36 +163,13 @@ export class Chip8 implements IChip8 {
     this._stack[index] = value;
   }
 
-  // Getter and setter for delayTimer
-  get delayTimer() {
-    return this._delayTimer[0];
-  }
-  set delayTimer(value: number) {
-    if (Chip8.check8bitRegInput(value, "Delay Timer")) {
-      this._delayTimer[0] = value;
-    }
-  }
-
-  // Getter and setter for soundTimer
-  get soundTimer() {
-    return this._soundTimer[0];
-  }
-  set soundTimer(value) {
-    if (Chip8.check8bitRegInput(value, "Sound Timer")) {
-      this._soundTimer[0] = value;
-    }
-  }
-
   // Interaction with other elements of the system
-
-  // TODO: clean this code, so it doesn't assume a particular object, but a
-  // general function that receives the display at each interval.
   /**
    * Run an 'asynchronous infinite loop' that executes the Renderer object.
    */
   runRendererObject(): void {
     setInterval(() => {
-      this.displayObject.render(this.display);
+      this.displayObject.render(this.displayDataArray);
     });
   }
 
@@ -303,10 +181,10 @@ export class Chip8 implements IChip8 {
   }
 
   /**
-   * Clear Chip8's display.
+   * Clear Chip8's internal display data.
    */
   clearDisplay(): void {
-    this.display = Array.from({ length: 32 }, () => Array(64).fill(0));
+    this.displayDataArray = Array.from({ length: 32 }, () => Array(64).fill(0));
   }
 
   /**
@@ -416,14 +294,14 @@ export class Chip8 implements IChip8 {
     }
 
     // clean I register (16-bit)
-    this.i = 0;
+    this.i_register.value = 0;
 
     // clean delay and sound timers (8-bit registers)
-    this.delayTimer = 0;
-    this.soundTimer = 0;
+    this.delayTimer.value = 0;
+    this.soundTimer.value = 0;
 
     // clean Program Counter (16-bit)
-    this.pc = 0;
+    this.pc.value = 0;
 
     // clean Stack Pointer (8-bit)
     this.sp = 0;

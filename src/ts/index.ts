@@ -4,9 +4,9 @@ import { Keyboard } from "./keyboard.js";
 
 const canvas: HTMLCanvasElement = document.querySelector("canvas#display")!;
 const reader = new FileReader();
-const renderer = new Display(10, canvas, 64, 32);
+const display = new Display(50, canvas, 64, 32);
 const keyboard = new Keyboard(document);
-const chip8 = new Chip8(renderer, keyboard);
+const chip8 = new Chip8(display, keyboard);
 const romInput = document.getElementById("romInput")!;
 const runButton = document.querySelector("button[id='runGame']")!;
 const submitInstructionForm = document.querySelector("form#runInstruction");
@@ -33,12 +33,12 @@ function main(): void {
 
   backgroundColorInput.oninput = function (event) {
     let colorInputElement = event.target as HTMLInputElement;
-    renderer.setBackgroundColor(colorInputElement.value);
+    display.setBackgroundColor(colorInputElement.value);
   };
 
   foregroundColorInput.oninput = function (event) {
     let colorInputElement = event.target as HTMLInputElement;
-    renderer.setForegroundColor(colorInputElement.value);
+    display.setForegroundColor(colorInputElement.value);
   };
 
   romInput.onchange = function (event) {

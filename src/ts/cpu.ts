@@ -8,26 +8,26 @@ export class Cpu {
    */
 
   static cpuRun(ch8: Chip8): void {
-    ch8.pc = 0x200;
+    ch8.pc.value = 0x200;
 
     ch8.runningLoops[ch8.runningLoops.length] = setInterval(() => {
       // set instruction:
-      let highByte = ch8.memory[ch8.pc];
-      let lowByte = ch8.memory[ch8.pc + 1];
+      let highByte = ch8.memory[ch8.pc.value];
+      let lowByte = ch8.memory[ch8.pc.value + 1];
       let instruction = 0x00_00 | (highByte << 8);
       instruction = instruction | lowByte;
 
       Cpu.processInstruction(instruction, ch8);
       if (!ch8.skipAutoPc) {
-        ch8.pc += 2; // increment after each operation
+        ch8.pc.value += 2; // increment after each operation
       }
 
       ch8.skipAutoPc = false;
-      if (ch8.delayTimer > 0) {
-        ch8.delayTimer--;
+      if (ch8.delayTimer.value > 0) {
+        ch8.delayTimer.value--;
       }
-      if (ch8.soundTimer > 0) {
-        ch8.soundTimer--;
+      if (ch8.soundTimer.value > 0) {
+        ch8.soundTimer.value--;
       }
     });
   }
@@ -252,7 +252,7 @@ export class Cpu {
    */
   static sys0nnn(instruction: number, ch8: Chip8): void {
     const address = 0x0fff & instruction;
-    ch8.pc = address;
+    ch8.pc.value = address;
     ch8.skipAutoPc = true;
   }
 
@@ -266,7 +266,7 @@ export class Cpu {
     // the stack, then subtracts 1 from the stack pointer.
 
     // set pc to address at the top of the stack
-    ch8.pc = ch8.getStack(ch8.sp);
+    ch8.pc.value = ch8.getStack(ch8.sp);
     // ch8.skipAutoPc = true;
     // the previous instruction (commented) doesn't apply because we need the
     // interpreter to return to the instruction and consider it the instruction
@@ -282,7 +282,7 @@ export class Cpu {
     // the interpreter sets the program counter to `nnn`
     let address = instruction & 0x0fff;
 
-    ch8.pc = address;
+    ch8.pc.value = address;
     ch8.skipAutoPc = true;
   }
 
@@ -294,8 +294,8 @@ export class Cpu {
     const address = instruction & 0x0fff;
 
     ch8.sp++;
-    ch8.setStack(ch8.sp, ch8.pc);
-    ch8.pc = address;
+    ch8.setStack(ch8.sp, ch8.pc.value);
+    ch8.pc.value = address;
     ch8.skipAutoPc = true;
   }
 
@@ -309,7 +309,7 @@ export class Cpu {
     const vx = ch8.getV(x);
 
     if (vx === kk) {
-      ch8.pc += 2;
+      ch8.pc.value += 2;
     }
   }
 
@@ -322,7 +322,7 @@ export class Cpu {
     const kk = instruction & 0x00ff;
 
     if (ch8.getV(x) !== kk) {
-      ch8.pc += 2;
+      ch8.pc.value += 2;
     }
   }
 
@@ -334,7 +334,7 @@ export class Cpu {
     const y = (instruction & 0x00f0) >> 4;
 
     if (ch8.getV(x) === ch8.getV(y)) {
-      ch8.pc += 2;
+      ch8.pc.value += 2;
     }
   }
 
@@ -528,7 +528,7 @@ export class Cpu {
     const vyValue = ch8.getV(y);
 
     if (!(vxValue === vyValue)) {
-      ch8.pc += 2;
+      ch8.pc.value += 2;
     }
   }
 
@@ -537,7 +537,7 @@ export class Cpu {
     // The value of register I is set to nnn
 
     const address = instruction & 0x0fff;
-    ch8.i = address;
+    ch8.i_register.value = address;
   }
 
   static jpBnnn(instruction: number, ch8: Chip8) {
@@ -545,7 +545,7 @@ export class Cpu {
     // The program counter is set to nnn plus the value of V0;
     const nnn = instruction & 0x0fff;
 
-    ch8.pc = nnn + ch8.getV(0);
+    ch8.pc.value = nnn + ch8.getV(0);
     ch8.skipAutoPc = true;
   }
 
@@ -579,7 +579,7 @@ export class Cpu {
 
     // fill array with sprite's data
     let spriteArray: number[] = [];
-    let memIndex = ch8.i;
+    let memIndex = ch8.i_register.value;
     for (let j = 0; j < n; memIndex++, j++) {
       spriteArray.push(ch8.memory[memIndex]);
     }
@@ -601,14 +601,16 @@ export class Cpu {
           currentRow = 0;
         }
 
-        let displayPixelOldValue = ch8.display[currentRow][currentCol];
-        ch8.display[currentRow][currentCol] ^= (byte & mask) >> bitOffset;
+        let displayPixelOldValue = ch8.displayDataArray[currentRow][currentCol];
+        ch8.displayDataArray[currentRow][currentCol] ^=
+          (byte & mask) >> bitOffset;
 
         // first check VF is already set to 1. If not, check collision.
         if (vFalreadyOn === false) {
           if (
             displayPixelOldValue === 1 &&
-            displayPixelOldValue !== ch8.display[currentRow][currentCol]
+            displayPixelOldValue !==
+              ch8.displayDataArray[currentRow][currentCol]
           ) {
             ch8.setV(0xf, 1);
             vFalreadyOn = true;
@@ -617,7 +619,7 @@ export class Cpu {
       }
       rowsCoord++; // next iteration of loop operate over next row on display
     }
-    ch8.displayObject.render(ch8.display);
+    ch8.displayObject.render(ch8.displayDataArray);
   }
 
   static skpEx9E(instruction: number, ch8: Chip8) {
@@ -629,7 +631,7 @@ export class Cpu {
     const vxValue = ch8.getV(x);
     const keyDownObject = ch8.Keyboard.getKeyboardState();
     if (keyDownObject[vxValue.toString(16)] === true) {
-      ch8.pc += 2;
+      ch8.pc.value += 2;
     }
   }
 
@@ -642,7 +644,7 @@ export class Cpu {
     const vxValue = ch8.getV(x);
     const keyDownObject = ch8.Keyboard.getKeyboardState();
     if (keyDownObject[vxValue.toString(16)] === false) {
-      ch8.pc += 2;
+      ch8.pc.value += 2;
     }
   }
 
@@ -652,7 +654,7 @@ export class Cpu {
     // The value of DT is placed into Vx.
     const x = (instruction & 0x0f00) >> 8;
 
-    ch8.setV(x, ch8.delayTimer);
+    ch8.setV(x, ch8.delayTimer.value);
   }
 
   static ldFx0A(instruction: number, ch8: Chip8) {
@@ -706,7 +708,7 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
 
     const vxValue = ch8.getV(x);
-    ch8.delayTimer = vxValue;
+    ch8.delayTimer.value = vxValue;
   }
 
   static ldFx18(instruction: number, ch8: Chip8) {
@@ -716,7 +718,7 @@ export class Cpu {
 
     const x = (instruction & 0x0f00) >> 8;
     const vxValue = ch8.getV(x);
-    ch8.soundTimer = vxValue;
+    ch8.soundTimer.value = vxValue;
   }
 
   static addFx1E(instruction: number, ch8: Chip8) {
@@ -724,10 +726,10 @@ export class Cpu {
     // The values of I and Vx are added, and the results are stored in I.
 
     const x = (instruction & 0x0f00) >> 8;
-    const iValue = ch8.i;
+    const iValue = ch8.i_register.value;
     const vxValue = ch8.getV(x);
 
-    ch8.i = iValue + vxValue;
+    ch8.i_register.value = iValue + vxValue;
   }
 
   static ldFx29(instruction: number, ch8: Chip8) {
@@ -740,7 +742,7 @@ export class Cpu {
     const x = (instruction & 0x0f00) >> 8;
 
     const vxValue = ch8.getV(x);
-    ch8.i = initialLocation + 5 * vxValue;
+    ch8.i_register.value = initialLocation + 5 * vxValue;
   }
 
   static ldFx33(instruction: number, ch8: Chip8) {
@@ -756,7 +758,7 @@ export class Cpu {
     let currentVxValue = vxValue;
 
     for (let j = 2; j >= 0; j--) {
-      ch8.memory[ch8.i + j] = currentVxValue % 10;
+      ch8.memory[ch8.i_register.value + j] = currentVxValue % 10;
       currentVxValue = Math.floor(currentVxValue / 10);
     }
   }
@@ -768,7 +770,7 @@ export class Cpu {
 
     const x = (instruction & 0x0f00) >> 8;
 
-    let address = ch8.i;
+    let address = ch8.i_register.value;
 
     for (let i = 0; i <= x; i++) {
       ch8.memory[address++] = ch8.getV(i);
@@ -782,7 +784,7 @@ export class Cpu {
 
     const x = (instruction & 0x0f00) >> 8;
 
-    let address = ch8.i;
+    let address = ch8.i_register.value;
 
     for (let i = 0; i <= x; i++) {
       ch8.setV(i, ch8.memory[address++]);
