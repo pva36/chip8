@@ -78,4 +78,8 @@ async function sendBinary(inputElement: HTMLInputElement | null) {
   }
 }
 
+// function checkSmartphone(): bool {
+//
+// }
+
 main();

@@ -26,6 +26,9 @@ export class Cpu {
       if (ch8.delayTimer > 0) {
         ch8.delayTimer--;
       }
+      if (ch8.soundTimer > 0) {
+        ch8.soundTimer--;
+      }
     });
   }
 
